@@ -3,7 +3,7 @@ import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {StudentBatch} from "./studentBatch.entity";
 import {CreateStudentBatch} from "./dto/create-student-batch";
-import {WebsitesValidator} from "./dto/websites.validator";
+import {StudentBatchesValidator} from "./dto/studentBatches.validator";
 @Injectable()
 export class StudentBatchesService {
     constructor(
@@ -14,7 +14,7 @@ export class StudentBatchesService {
 
     async create(studentBatch: CreateStudentBatch): Promise<StudentBatch> {
         try {
-            WebsitesValidator.validateWebsiteDto(studentBatch);
+            StudentBatchesValidator.validateCreateStudentBatchDto(studentBatch);
         } catch (error) {
             throw new BadRequestException(error.message);
         }
