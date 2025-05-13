@@ -3,7 +3,7 @@ import {ApiBearerAuth, ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {StudentBatchesService} from "./studentBatches.service";
 import {CreateStudentBatch} from "./dto/create-student-batch";
 import {ListStudentBatchesDto} from "./dto/list-student-batches.dto";
-import {UpdateWebsiteDto} from "./dto/update-website.dto";
+import {PatchStudentBatchDto} from "./dto/update-student-batch.dto";
 
 @ApiTags("StudentBatches")
 @Controller("student-batches")
@@ -26,6 +26,15 @@ export class StudentBatchesController {
     })
     async create(@Body() newStudentBatch: CreateStudentBatch) {
         return this.studentBatchesService.create(newStudentBatch);
+    }
+
+    @Patch(":id")
+    @ApiBody({
+        type: PatchStudentBatchDto,
+        description: "Json structure for update studentBatch object",
+    })
+    async patch(@Body() updatedStudentBatch: PatchStudentBatchDto, @Param("id") id: string) {
+        return this.studentBatchesService.update(id, updatedStudentBatch);
     }
 
     @Get(":id")
