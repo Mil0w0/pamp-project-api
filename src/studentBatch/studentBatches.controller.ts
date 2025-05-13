@@ -1,4 +1,16 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, Query, SetMetadata,} from "@nestjs/common";
+import {
+    Body,
+    Controller,
+    Delete,
+    Get,
+    Param,
+    Patch,
+    Post,
+    Query,
+    SetMetadata,
+    UsePipes,
+    ValidationPipe,
+} from "@nestjs/common";
 import {ApiBearerAuth, ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {StudentBatchesService} from "./studentBatches.service";
 import {CreateStudentBatch} from "./dto/create-student-batch";
@@ -33,6 +45,7 @@ export class StudentBatchesController {
         type: PatchStudentBatchDto,
         description: "Json structure for update studentBatch object",
     })
+    @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
     async patch(@Body() updatedStudentBatch: PatchStudentBatchDto, @Param("id") id: string) {
         return this.studentBatchesService.update(id, updatedStudentBatch);
     }

@@ -97,5 +97,4 @@ export class StudentBatchesService {
         await this.studentBatchsRepository.delete(studentBatch.id);
         return studentBatch; //todo: do i need this
     }
-
 }
