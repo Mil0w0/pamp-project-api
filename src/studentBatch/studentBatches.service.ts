@@ -6,7 +6,7 @@ import {CreateStudentBatch} from "./dto/create-student-batch";
 import {StudentBatchesValidator} from "./dto/studentBatches.validator";
 import {ListStudentBatchesDto} from "./dto/list-student-batches.dto";
 import {DEFAULT_ELEMENT_BY_PAGE} from "../constants";
-
+import {PatchStudentBatchDto} from "./dto/update-student-batch.dto";
 
 @Injectable()
 export class StudentBatchesService {
@@ -61,6 +61,29 @@ export class StudentBatchesService {
                     skip: (page - 1) * limit || 0,
                 }
             );
+        }catch (error) {
+            throw new InternalServerErrorException()
+        }
+    }
+
+    async exists(id: string): Promise<boolean> {
+        if(!await this.findOne(id)) throw new NotFoundException(`Student batch '${id}' not found`);
+        return true;
+    }
+
+    /**
+     *
+     * @param fielsToUpdate : PatchStudentBatchDto
+     * @param id : string
+     * Update the promotion
+     */
+    async update(id: string, fielsToUpdate: PatchStudentBatchDto): Promise<StudentBatch> {
+        try {
+            const updated= await this.studentBatchsRepository.update(
+                id,
+                fielsToUpdate
+            )
+            return await this.studentBatchsRepository.findOne({ where: { id } });
         }catch (error) {
             throw new InternalServerErrorException()
         }
