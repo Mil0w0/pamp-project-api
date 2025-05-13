@@ -2,14 +2,13 @@ import {Body, Controller, Delete, Get, Param, Patch, Post, Query, SetMetadata,} 
 import {ApiBearerAuth, ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {StudentBatchesService} from "./studentBatches.service";
 import {CreateStudentBatch} from "./dto/create-student-batch";
-import {ListWebsitesDto} from "./dto/list-websites.dto";
+import {ListStudentBatchesDto} from "./dto/list-student-batches.dto";
 import {UpdateWebsiteDto} from "./dto/update-website.dto";
 
 @ApiTags("StudentBatches")
 @Controller("student-batches")
-@ApiBearerAuth("JWT-auth")
 export class StudentBatchesController {
-    constructor(private readonly websitesServices: StudentBatchesService) {
+    constructor(private readonly studentBatchesService: StudentBatchesService) {
     }
 
     @Post("")
@@ -26,7 +25,7 @@ export class StudentBatchesController {
         description: "Json structure for create studentBatch object",
     })
     async create(@Body() newStudentBatch: CreateStudentBatch) {
-        return this.websitesServices.create(newStudentBatch);
+        return this.studentBatchesService.create(newStudentBatch);
     }
 
     @Get(":id")
@@ -35,7 +34,29 @@ export class StudentBatchesController {
         description: "The studentBatch has been successfully fetched.",
     })
     async findOne(@Param("id") id: string){
-        return this.websitesServices.findOne(id);
+        return this.studentBatchesService.findOne(id);
+    }
+
+    @Get("")
+    @ApiResponse({
+        status: 200,
+        description: "The studentBatch has been successfully fetched.",
+    })
+    async findAll(@Query() params: ListStudentBatchesDto){
+        return this.studentBatchesService.findAll(params);
+    }
+
+    @Delete(":id")
+    @ApiResponse({
+        status: 200,
+        description: "The studentBatch has been successfully deleted.",
+    })
+    @ApiResponse({
+        status: 404,
+        description: "Student batch not found",
+    })
+    async delete(@Param("id") id: string){
+        return this.studentBatchesService.delete(id);
     }
 
 }

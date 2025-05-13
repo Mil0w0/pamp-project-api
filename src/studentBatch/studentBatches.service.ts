@@ -4,6 +4,10 @@ import {Repository} from "typeorm";
 import {StudentBatch} from "./studentBatch.entity";
 import {CreateStudentBatch} from "./dto/create-student-batch";
 import {StudentBatchesValidator} from "./dto/studentBatches.validator";
+import {ListStudentBatchesDto} from "./dto/list-student-batches.dto";
+import {DEFAULT_ELEMENT_BY_PAGE} from "../constants";
+
+
 @Injectable()
 export class StudentBatchesService {
     constructor(
@@ -41,6 +45,34 @@ export class StudentBatchesService {
             throw new NotFoundException(`Student batch '${id}' not found`);
         }
         return studentBatch;
+    }
+
+    /**
+     *
+     * @param limit : number
+     * @param page : number
+     * Get all student batches with pagination
+     */
+    async findAll({limit, page}: ListStudentBatchesDto): Promise<StudentBatch[]> {
+        try {
+            return await this.studentBatchsRepository.find(
+                {
+                    take: limit || DEFAULT_ELEMENT_BY_PAGE,
+                    skip: (page - 1) * limit || 0,
+                }
+            );
+        }catch (error) {
+            throw new InternalServerErrorException()
+        }
+    }
+
+    async delete(id: string): Promise<StudentBatch> {
+        const studentBatch = await this.findOne(id);
+        if (!studentBatch) {
+            throw new NotFoundException(`Student batch '${id}' not found`);
+        }
+        await this.studentBatchsRepository.delete(studentBatch.id);
+        return studentBatch; //todo: do i need this
     }
 
 }

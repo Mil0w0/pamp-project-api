@@ -1,0 +1,1 @@
+export const DEFAULT_ELEMENT_BY_PAGE = 10;
