@@ -7,6 +7,7 @@ import {StudentBatch} from "./studentBatch/studentBatch.entity";
 import {StudentBatchesController} from "./studentBatch/studentBatches.controller";
 import {StudentBatchesService} from "./studentBatch/studentBatches.service";
 import {HttpModule} from "@nestjs/axios";
+import {StudentService} from "./studentBatch/students.service";
 
 @Module({
   imports: [
@@ -27,7 +28,7 @@ import {HttpModule} from "@nestjs/axios";
   controllers: [AppController, StudentBatchesController],
   providers: [
     AppService,
-      StudentBatchesService
+      StudentBatchesService, StudentService
   ],
 })
 export class AppModule {}

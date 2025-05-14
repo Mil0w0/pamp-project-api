@@ -13,10 +13,14 @@ export class StudentService {
     }
 
     /*Returns number of students created*/
-    async createStudentsAccount(students: CreateStudent[]): Promise<number> {
+    async createStudentsAccount(students: CreateStudent[], token: string): Promise<number> {
         try {
             const {data} = await firstValueFrom(
-                this.httpService.post<CreateStudentsResponse>(`${USER_SERVICE_URL}/user-api/register/students`, students).pipe(
+                this.httpService.post<CreateStudentsResponse>(`${USER_SERVICE_URL}/user-api/register/students`, students, {
+                    headers: {
+                        Authorization: token,
+                    }
+                }).pipe(
                     catchError((error: AxiosError) => {
                         throw new InternalServerErrorException(`Error while creating accounts: ${error}`);
                     }),
@@ -30,10 +34,15 @@ export class StudentService {
     }
 
 
-    async hasAccount(studentId: string) {
+    async hasAccount(studentId: string, token: string): Promise<boolean> {
         try {
             const {status} = await firstValueFrom(
-                this.httpService.get<GetStudent>(`${USER_SERVICE_URL}/user-api/users/${studentId}`).pipe(
+                this.httpService.get<GetStudent>(`${USER_SERVICE_URL}/user-api/users/${studentId}`,
+                    {
+                        headers: {
+                            Authorization: token,
+                        }
+                    }).pipe(
                     catchError((error: AxiosError) => {
                         throw new InternalServerErrorException(`Error while checking if student exist: ${error}`);
                     }),

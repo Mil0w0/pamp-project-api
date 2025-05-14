@@ -47,7 +47,7 @@ export class StudentBatchesService {
         }
     }
 
-    async findOne(id: string){
+    async findOne(id: string, token: string){
         const studentBatch = await this.studentBatchsRepository.findOneBy({id});
         if (!studentBatch) {
             throw new NotFoundException(`Student batch '${id}' not found`);
@@ -55,7 +55,12 @@ export class StudentBatchesService {
 
         //Get students info from user microservice and rebuild an answer object
         const {data} = await firstValueFrom(
-            this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/user-api/users/`).pipe(
+            //TODO: CHANGE THE URL TO GET ALL USERS BY ID PRESENT IN THE BATCH
+            this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/user-api/users`, {
+                headers: {
+                    Authorization: token,
+                }
+            }).pipe(
                 catchError((error: AxiosError) => {
                     throw new InternalServerErrorException(`Error: ${error}`);
                 }),
@@ -68,9 +73,10 @@ export class StudentBatchesService {
      *
      * @param limit : number
      * @param page : number
+     * @param token : string
      * Get all student batches with pagination
      */
-    async findAll({limit, page}: ListStudentBatchesDto): Promise<StudentBatch[]> {
+    async findAll({limit, page}: ListStudentBatchesDto, token: string): Promise<StudentBatch[]> {
         try {
             const batches = await this.studentBatchsRepository.find(
                 {
@@ -82,7 +88,11 @@ export class StudentBatchesService {
             for (const batch of batches) {
                 //Get students info from user microservice and rebuild an answer object
                 const {data} = await firstValueFrom(
-                    this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/user-api/users/`).pipe(
+                    this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/user-api/users`, {
+                        headers: {
+                            Authorization: token,
+                        },
+                    }).pipe(
                         catchError((error: AxiosError) => {
                             throw new InternalServerErrorException(`Error: ${error}`);
                         }),
@@ -92,13 +102,8 @@ export class StudentBatchesService {
             }
             return studentBatchs;
         }catch (error) {
-            throw new InternalServerErrorException()
+            throw new InternalServerErrorException(error)
         }
-    }
-
-    async exists(id: string): Promise<boolean> {
-        if(!await this.findOne(id)) throw new NotFoundException(`Student batch '${id}' not found`);
-        return true;
     }
 
     /**
@@ -107,7 +112,7 @@ export class StudentBatchesService {
      * @param id : string
      * Update the promotion
      */
-    async update(id: string, fielsToUpdate: PatchStudentBatchDto): Promise<StudentBatch> {
+    async update(id: string, fielsToUpdate: PatchStudentBatchDto, token: string ): Promise<StudentBatch> {
 
         let studentsIds: string = ""
         let formattedFields = {}
@@ -120,14 +125,14 @@ export class StudentBatchesService {
                 * While the others need to be created
                 * All students needs to be notified that they got added to a batch.
                 * */
-               const doesStudentHaveAccount = await this.studentService.hasAccount(student.id)
+               const doesStudentHaveAccount = await this.studentService.hasAccount(student.id, token)
                if(!doesStudentHaveAccount){
                    studentsToCreate.push(student);
                }
                studentsIds+= `${student.id}, `
             }
             //Todo: returns a message to frontend with that?
-            const nbStudendsCreated = await this.studentService.createStudentsAccount(studentsToCreate);
+            const nbStudendsCreated = await this.studentService.createStudentsAccount(studentsToCreate, token);
             //Todo: send mail
             formattedFields = {...fielsToUpdate, students: studentsIds};
         }
@@ -143,8 +148,8 @@ export class StudentBatchesService {
         }
     }
 
-    async delete(id: string) {
-        const studentBatch = await this.findOne(id);
+    async delete(id: string, token: string ) {
+        const studentBatch = await this.findOne(id, token);
         if (!studentBatch) {
             throw new NotFoundException(`Student batch '${id}' not found`);
         }
