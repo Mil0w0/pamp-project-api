@@ -13,7 +13,7 @@ import {
 } from "@nestjs/common";
 import {ApiBearerAuth, ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {StudentBatchesService} from "./studentBatches.service";
-import {CreateStudentBatch} from "./dto/create-student-batch";
+import {CreateStudentBatchDto} from "./dto/create-student-batch-dto";
 import {ListStudentBatchesDto} from "./dto/list-student-batches.dto";
 import {PatchStudentBatchDto} from "./dto/update-student-batch.dto";
 
@@ -33,10 +33,10 @@ export class StudentBatchesController {
         description: "Bad request",
     })
     @ApiBody({
-        type: CreateStudentBatch,
+        type: CreateStudentBatchDto,
         description: "Json structure for create studentBatch object",
     })
-    async create(@Body() newStudentBatch: CreateStudentBatch) {
+    async create(@Body() newStudentBatch: CreateStudentBatchDto) {
         return this.studentBatchesService.create(newStudentBatch);
     }
 

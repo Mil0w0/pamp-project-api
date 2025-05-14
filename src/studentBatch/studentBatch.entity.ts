@@ -1,5 +1,4 @@
 import {Entity, Column, PrimaryColumn} from "typeorm";
-
 @Entity()
 export class StudentBatch {
   @PrimaryColumn({ generated: "uuid" })
@@ -20,5 +19,5 @@ export class StudentBatch {
   @Column({ default: "" })
   tags: string
 
-  // todo: students: Student[]
+  students : string[]
 }

@@ -2,21 +2,29 @@ import {BadRequestException, Injectable, InternalServerErrorException, NotFoundE
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
 import {StudentBatch} from "./studentBatch.entity";
-import {CreateStudentBatch} from "./dto/create-student-batch";
+import {CreateStudentBatchDto} from "./dto/create-student-batch-dto";
 import {StudentBatchesValidator} from "./dto/studentBatches.validator";
 import {ListStudentBatchesDto} from "./dto/list-student-batches.dto";
-import {DEFAULT_ELEMENT_BY_PAGE} from "../constants";
+import {DEFAULT_ELEMENT_BY_PAGE, USER_SERVICE_URL} from "../constants";
 import {PatchStudentBatchDto} from "./dto/update-student-batch.dto";
+import {HttpService} from "@nestjs/axios";
+import { catchError, firstValueFrom } from 'rxjs';
+import {AxiosError} from "axios";
+import {StudentService} from "./students.service";
+import {GetStudent} from "./dto/get-students-dao";
 
 @Injectable()
 export class StudentBatchesService {
     constructor(
         @InjectRepository(StudentBatch)
         private studentBatchsRepository: Repository<StudentBatch>,
-    ) {
+        private readonly studentService: StudentService,
+        private readonly httpService: HttpService
+
+) {
     }
 
-    async create(studentBatch: CreateStudentBatch): Promise<StudentBatch> {
+    async create(studentBatch: CreateStudentBatchDto): Promise<StudentBatch> {
         try {
             StudentBatchesValidator.validateCreateStudentBatchDto(studentBatch);
         } catch (error) {
@@ -39,12 +47,21 @@ export class StudentBatchesService {
         }
     }
 
-    async findOne(id: string): Promise<StudentBatch> {
+    async findOne(id: string){
         const studentBatch = await this.studentBatchsRepository.findOneBy({id});
         if (!studentBatch) {
             throw new NotFoundException(`Student batch '${id}' not found`);
         }
-        return studentBatch;
+
+        //Get students info from user microservice and rebuild an answer object
+        const {data} = await firstValueFrom(
+            this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/user-api/users/`).pipe(
+                catchError((error: AxiosError) => {
+                    throw new InternalServerErrorException(`Error: ${error}`);
+                }),
+            ),
+        );
+        return {...studentBatch, students: data} ;
     }
 
     /**
@@ -55,12 +72,25 @@ export class StudentBatchesService {
      */
     async findAll({limit, page}: ListStudentBatchesDto): Promise<StudentBatch[]> {
         try {
-            return await this.studentBatchsRepository.find(
+            const batches = await this.studentBatchsRepository.find(
                 {
                     take: limit || DEFAULT_ELEMENT_BY_PAGE,
                     skip: (page - 1) * limit || 0,
                 }
             );
+            let studentBatchs = [];
+            for (const batch of batches) {
+                //Get students info from user microservice and rebuild an answer object
+                const {data} = await firstValueFrom(
+                    this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/user-api/users/`).pipe(
+                        catchError((error: AxiosError) => {
+                            throw new InternalServerErrorException(`Error: ${error}`);
+                        }),
+                    ),
+                );
+                studentBatchs.push({...batch, students: data});
+            }
+            return studentBatchs;
         }catch (error) {
             throw new InternalServerErrorException()
         }
@@ -78,10 +108,34 @@ export class StudentBatchesService {
      * Update the promotion
      */
     async update(id: string, fielsToUpdate: PatchStudentBatchDto): Promise<StudentBatch> {
+
+        let studentsIds: string = ""
+        let formattedFields = {}
+
+        if(fielsToUpdate.students){
+            let studentsToCreate = []
+            for (const student of fielsToUpdate.students) {
+               /**
+                * Already created students are just added to the studentIds
+                * While the others need to be created
+                * All students needs to be notified that they got added to a batch.
+                * */
+               const doesStudentHaveAccount = await this.studentService.hasAccount(student.id)
+               if(!doesStudentHaveAccount){
+                   studentsToCreate.push(student);
+               }
+               studentsIds+= `${student.id}, `
+            }
+            //Todo: returns a message to frontend with that?
+            const nbStudendsCreated = await this.studentService.createStudentsAccount(studentsToCreate);
+            //Todo: send mail
+            formattedFields = {...fielsToUpdate, students: studentsIds};
+        }
+
         try {
             const updated= await this.studentBatchsRepository.update(
                 id,
-                fielsToUpdate
+                formattedFields
             )
             return await this.studentBatchsRepository.findOne({ where: { id } });
         }catch (error) {
@@ -89,12 +143,13 @@ export class StudentBatchesService {
         }
     }
 
-    async delete(id: string): Promise<StudentBatch> {
+    async delete(id: string) {
         const studentBatch = await this.findOne(id);
         if (!studentBatch) {
             throw new NotFoundException(`Student batch '${id}' not found`);
         }
         await this.studentBatchsRepository.delete(studentBatch.id);
-        return studentBatch; //todo: do i need this
+        return {...studentBatch};
     }
+
 }
