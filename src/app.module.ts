@@ -6,9 +6,11 @@ import { ConfigModule } from "@nestjs/config";
 import {StudentBatch} from "./studentBatch/studentBatch.entity";
 import {StudentBatchesController} from "./studentBatch/studentBatches.controller";
 import {StudentBatchesService} from "./studentBatch/studentBatches.service";
+import {HttpModule} from "@nestjs/axios";
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: "mysql",

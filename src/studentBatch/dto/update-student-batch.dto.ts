@@ -1,7 +1,6 @@
-import {IsOptional, IsString,} from "class-validator";
+import {IsNotEmpty, IsOptional, IsString,} from "class-validator";
 import {ApiProperty, PartialType} from "@nestjs/swagger";
-import {CreateStudentBatch} from "./create-student-batch";
-
+import {CreateStudent} from "./get-students-dao";
 export class PatchStudentBatchDto {
     @ApiProperty({
         example: "INACTIVE",
@@ -16,6 +15,7 @@ export class PatchStudentBatchDto {
         required: false,
     })
     @IsString()
+    @IsNotEmpty()
     @IsOptional()
     name?: string;
 
@@ -26,4 +26,7 @@ export class PatchStudentBatchDto {
     @IsString()
     @IsOptional()
     tags?: string;
+
+    @IsOptional()
+    students?: CreateStudent[];
 }

@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 import { IsString } from "class-validator";
 
-export class CreateStudentBatch {
+export class CreateStudentBatchDto {
   @ApiProperty({
     example: "Promotion Z",
     required: true,
