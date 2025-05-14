@@ -6,7 +6,7 @@ import {
     Param,
     Patch,
     Post,
-    Query,
+    Query, Req,
     SetMetadata,
     UsePipes,
     ValidationPipe,
@@ -46,8 +46,9 @@ export class StudentBatchesController {
         description: "Json structure for update studentBatch object",
     })
     @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
-    async patch(@Body() updatedStudentBatch: PatchStudentBatchDto, @Param("id") id: string) {
-        return this.studentBatchesService.update(id, updatedStudentBatch);
+    async patch(@Body() updatedStudentBatch: PatchStudentBatchDto, @Param("id") id: string,  @Req() req: Request) {
+        const bearerToken = req.headers['authorization'];
+        return this.studentBatchesService.update(id, updatedStudentBatch, bearerToken);
     }
 
     @Get(":id")
@@ -55,17 +56,19 @@ export class StudentBatchesController {
         status: 200,
         description: "The studentBatch has been successfully fetched.",
     })
-    async findOne(@Param("id") id: string){
-        return this.studentBatchesService.findOne(id);
+    async findOne(@Param("id") id: string,  @Req() req: Request){
+        const bearerToken = req.headers['authorization'];
+        return this.studentBatchesService.findOne(id, bearerToken);
     }
 
     @Get("")
     @ApiResponse({
         status: 200,
-        description: "The studentBatch has been successfully fetched.",
+        description: "The studentBatches have been successfully fetched.",
     })
-    async findAll(@Query() params: ListStudentBatchesDto){
-        return this.studentBatchesService.findAll(params);
+    async findAll(@Query() params: ListStudentBatchesDto,  @Req() req: Request){
+        const bearerToken = req.headers['authorization'];
+        return this.studentBatchesService.findAll(params, bearerToken);
     }
 
     @Delete(":id")
@@ -77,8 +80,9 @@ export class StudentBatchesController {
         status: 404,
         description: "Student batch not found",
     })
-    async delete(@Param("id") id: string){
-        return this.studentBatchesService.delete(id);
+    async delete(@Param("id") id: string,  @Req() req: Request){
+        const bearerToken = req.headers['authorization'];
+        return this.studentBatchesService.delete(id, bearerToken);
     }
 
 }
