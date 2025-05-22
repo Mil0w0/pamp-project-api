@@ -1,0 +1,156 @@
+name: Format & Lint Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  format-lint:
+    name: Format & Lint
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check formatting
+        id: format_check
+        run: |
+          # Turn off automatic exit on error
+          set +e
+          
+          # Run the format check and capture the output
+          npx prettier --check "src/**/*.ts" "test/**/*.ts" > format_output.txt 2>&1
+          FORMAT_EXIT_CODE=$?
+          
+          # Turn automatic exit on error back on
+          set -e
+          
+          # Store the exit code for later steps
+          echo "format_exit_code=$FORMAT_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          # Report results
+          if [ $FORMAT_EXIT_CODE -ne 0 ]; then
+            echo "⚠️ Formatting issues found:"
+            cat format_output.txt
+            # Create a flag to indicate formatting issues were found
+            echo "has_format_issues=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Code formatting looks good!"
+            echo "has_format_issues=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Make sure we let the workflow continue to comment on PR
+          exit 0
+
+      - name: Check linting
+        id: lint_check
+        run: |
+          # Turn off automatic exit on error
+          set +e
+          
+          # Run the lint check and capture the output
+          npx eslint "{src,apps,libs,test}/**/*.ts" > lint_output.txt 2>&1
+          LINT_EXIT_CODE=$?
+          
+          # Turn automatic exit on error back on
+          set -e
+          
+          # Store the exit code for later steps
+          echo "lint_exit_code=$LINT_EXIT_CODE" >> $GITHUB_OUTPUT
+          
+          # Report results
+          if [ $LINT_EXIT_CODE -ne 0 ]; then
+            echo "⚠️ Linting issues found:"
+            cat lint_output.txt
+            # Create a flag to indicate linting issues were found
+            echo "has_lint_issues=true" >> $GITHUB_OUTPUT
+          else
+            echo "✅ Code linting looks good!"
+            echo "has_lint_issues=false" >> $GITHUB_OUTPUT
+          fi
+          
+          # Make sure we let the workflow continue to comment on PR
+          exit 0
+
+      - name: Comment PR with issues
+        if: github.event_name == 'pull_request' && (steps.format_check.outputs.has_format_issues == 'true' || steps.lint_check.outputs.has_lint_issues == 'true')
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let commentBody = '## ❌ Code Quality Check Failed\n\n';
+            
+            // Add formatting issues if any
+            if ('${{ steps.format_check.outputs.has_format_issues }}' === 'true' && fs.existsSync('format_output.txt')) {
+              const formatOutput = fs.readFileSync('format_output.txt', 'utf8');
+              commentBody += '### Formatting Issues\n\n';
+              commentBody += 'Your PR has code formatting issues. Please run `npm run format` locally to fix them.\n\n';
+              commentBody += '```\n' + formatOutput + '\n```\n\n';
+            }
+            
+            // Add linting issues if any
+            if ('${{ steps.lint_check.outputs.has_lint_issues }}' === 'true' && fs.existsSync('lint_output.txt')) {
+              const lintOutput = fs.readFileSync('lint_output.txt', 'utf8');
+              commentBody += '### Linting Issues\n\n';
+              commentBody += 'Your PR has code linting issues. Please run `npm run lint` locally to fix them.\n\n';
+              commentBody += '```\n' + lintOutput + '\n```\n\n';
+            }
+            
+            commentBody += '### How to fix:\n';
+            commentBody += '1. Run `npm run format` and `npm run lint` in your local repository\n';
+            commentBody += '2. Commit and push the changes\n';
+            commentBody += '3. The CI will run again and should pass these checks\n';
+            
+            // Post the comment on the PR
+            try {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: commentBody
+              });
+              
+              console.log('Successfully posted issues comment to PR');
+            } catch (error) {
+              console.error('Error posting issues comment:', error);
+            }
+
+      - name: Determine overall success
+        if: always()
+        run: |
+          FORMAT_EXIT_CODE="${{ steps.format_check.outputs.format_exit_code }}"
+          LINT_EXIT_CODE="${{ steps.lint_check.outputs.lint_exit_code }}"
+          
+          echo "Format exit code: $FORMAT_EXIT_CODE"
+          echo "Lint exit code: $LINT_EXIT_CODE"
+          
+          if [[ "$FORMAT_EXIT_CODE" != "0" && "$FORMAT_EXIT_CODE" != "" ]]; then
+            echo "::error::Code formatting issues found. Run 'npm run format' locally to fix."
+            exit_with_error=true
+          fi
+          
+          if [[ "$LINT_EXIT_CODE" != "0" && "$LINT_EXIT_CODE" != "" ]]; then
+            echo "::error::Code linting issues found. Run 'npm run lint' locally to fix."
+            exit_with_error=true
+          fi
+          
+          if [[ "$exit_with_error" == "true" ]]; then
+            exit 1
+          else
+            echo "::notice::Format and lint check completed successfully."
+            exit 0
+          fi 
