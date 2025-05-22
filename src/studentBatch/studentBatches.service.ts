@@ -77,8 +77,9 @@ export class StudentBatchesService {
      * Get all student batches with pagination
      */
     async findAll({limit, page}: ListStudentBatchesDto, token: string): Promise<StudentBatch[]> {
+        console.log(token);
         try {
-            const batches = await this.studentBatchsRepository.find(
+            const batches: StudentBatch[] = await this.studentBatchsRepository.find(
                 {
                     take: limit || DEFAULT_ELEMENT_BY_PAGE,
                     skip: (page - 1) * limit || 0,
@@ -86,9 +87,10 @@ export class StudentBatchesService {
             );
             let studentBatchs = [];
             for (const batch of batches) {
+                console.log(batch.students);
                 //Get students info from user microservice and rebuild an answer object
                 const {data} = await firstValueFrom(
-                    this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/user-api/users`, {
+                    this.httpService.get<GetStudent[]>(`${USER_SERVICE_URL}/users?ids=${batch.students}`, {
                         headers: {
                             Authorization: token,
                         },
