@@ -1,0 +1,52 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: pamp_project_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Copy example .env file
+        run: |
+          cat > .env << EOL
+          DATABASE_HOST=localhost
+          DATABASE_PORT=3306
+          DATABASE_USERNAME=root
+          DATABASE_PASSWORD=root
+          DATABASE_NAME=pamp_project_test
+          JWT_SECRET=test_secret_for_ci
+          JWT_EXPIRATION=3600
+          EOL
+
+      - name: Run tests
+        run: npm test 
