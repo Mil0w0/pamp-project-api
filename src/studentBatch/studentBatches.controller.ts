@@ -68,6 +68,7 @@ export class StudentBatchesController {
     })
     async findAll(@Query() params: ListStudentBatchesDto,  @Req() req: Request){
         const bearerToken = req.headers['authorization'];
+        console.log(req.headers);
         return this.studentBatchesService.findAll(params, bearerToken);
     }
 
