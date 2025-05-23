@@ -1,4 +1,4 @@
-import {Entity, Column, PrimaryColumn} from "typeorm";
+import { Entity, Column, PrimaryColumn } from "typeorm";
 @Entity()
 export class StudentBatch {
   @PrimaryColumn({ generated: "uuid" })
@@ -14,11 +14,11 @@ export class StudentBatch {
   createdAt: Date;
 
   @Column()
-  name: string
+  name: string;
 
   @Column({ default: "" })
-  tags: string
+  tags: string;
 
   @Column({ default: "" })
-  students : string
+  students: string;
 }

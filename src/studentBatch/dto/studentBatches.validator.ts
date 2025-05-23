@@ -6,6 +6,4 @@ export class StudentBatchesValidator {
       throw new BadRequestException("Name is required");
     }
   }
-
-
 }
