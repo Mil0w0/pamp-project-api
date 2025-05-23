@@ -16,7 +16,9 @@ describe("AppController", () => {
 
   describe("root", () => {
     it('should return "Hello World!"', () => {
-      expect(appController.getPresentation()).toBe("This is the test endpoint of the API. Enjoy!");
+      expect(appController.getPresentation()).toBe(
+        "This is the test endpoint of the API. Enjoy!",
+      );
     });
   });
 });
