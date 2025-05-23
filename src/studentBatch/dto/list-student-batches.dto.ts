@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {IsPositive} from "class-validator";
+import { IsPositive } from "class-validator";
 
 export class ListStudentBatchesDto {
   @ApiProperty({
