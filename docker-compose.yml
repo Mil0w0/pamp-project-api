@@ -1,16 +1,15 @@
 version: '3.8'
 services:
   pamp-project-service:
-    image: mysql
+    image: postgres:15-alpine
     environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE_NAME}
-      MYSQL_USER: ${DATABASE_USERNAME}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     ports:
-      - "${HOST_DB_PORT}:3306"
+      - "${HOST_DB_PORT}:5432"
     volumes:
-      - pamp-project-db-data:/var/lib/mysql
+      - pamp-project-db-data:/var/lib/postgresql/data
     restart: unless-stopped
   pamp-api:
     build: .
@@ -19,11 +18,7 @@ services:
     depends_on:
       - pamp-project-service
     environment:
-      DATABASE_HOST: pamp-project-service
-      DATABASE_PORT: 3306
-      DATABASE_NAME: ${DATABASE_NAME}
-      DATABASE_USER: ${DATABASE_USERNAME}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      DATABASE_URL: postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@pamp-project-service:5432/${DATABASE_NAME}
     restart: unless-stopped
 volumes:
   pamp-project-db-data:
