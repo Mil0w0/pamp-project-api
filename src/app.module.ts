@@ -15,7 +15,9 @@ import { StudentService } from "./studentBatch/students.service";
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: "postgres",
-      url: process.env.DATABASE_URL || "postgres://postgres:postgres@localhost:5432/pamp_projects",
+      url:
+        process.env.DATABASE_URL ||
+        "postgres://postgres:postgres@localhost:5432/pamp_projects",
       entities: [StudentBatch],
       synchronize: true,
     }),
