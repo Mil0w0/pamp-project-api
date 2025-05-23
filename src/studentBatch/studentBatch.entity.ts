@@ -19,5 +19,6 @@ export class StudentBatch {
   @Column({ default: "" })
   tags: string
 
-  students : string[]
+  @Column({ default: "" })
+  students : string
 }

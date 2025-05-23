@@ -1,4 +1,4 @@
-import {catchError, firstValueFrom} from "rxjs";
+import {catchError, firstValueFrom, of} from "rxjs";
 import {USER_SERVICE_URL} from "../constants";
 import {AxiosError} from "axios";
 import {Injectable, InternalServerErrorException} from "@nestjs/common";
@@ -15,13 +15,24 @@ export class StudentService {
     /*Returns number of students created*/
     async createStudentsAccount(students: CreateStudent[], token: string): Promise<number> {
         try {
+
+            //Remove id from those students fixme: it's ugly but working
+            const newStudents = students.map((student) => {
+                return {
+                    email: student.email,
+                    first_name: student.first_name,
+                    last_name: student.last_name,
+                }
+            })
+
             const {data} = await firstValueFrom(
-                this.httpService.post<CreateStudentsResponse>(`${USER_SERVICE_URL}/user-api/register/students`, students, {
+                this.httpService.post<CreateStudentsResponse>(`${USER_SERVICE_URL}/register/students`, {students: newStudents}, {
                     headers: {
                         Authorization: token,
                     }
                 }).pipe(
                     catchError((error: AxiosError) => {
+                        console.log(error)
                         throw new InternalServerErrorException(`Error while creating accounts: ${error}`);
                     }),
                 ),
@@ -34,17 +45,28 @@ export class StudentService {
     }
 
 
-    async hasAccount(studentId: string, token: string): Promise<boolean> {
+    /**
+     * Check if student has an account already thx to their email
+     * @param studentEmail
+     * @param token
+     */
+    async hasAccount(studentEmail: string, token: string): Promise<boolean> {
         try {
             const {status} = await firstValueFrom(
-                this.httpService.get<GetStudent>(`${USER_SERVICE_URL}/user-api/users/${studentId}`,
+                this.httpService.get<GetStudent>(`${USER_SERVICE_URL}/users/email/${(encodeURIComponent(studentEmail))}`,
                     {
                         headers: {
                             Authorization: token,
                         }
                     }).pipe(
                     catchError((error: AxiosError) => {
-                        throw new InternalServerErrorException(`Error while checking if student exist: ${error}`);
+                        if (error.response?.status === 404) {
+                            return of({ status: 404 } as any); // Return mock response to indicate 404
+                        }else{
+                            throw new InternalServerErrorException(
+                                `Error while checking if student exists: ${error.message}`,
+                            );
+                        }
                     }),
                 ),
             );
