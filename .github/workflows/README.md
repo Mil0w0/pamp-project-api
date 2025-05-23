@@ -8,7 +8,7 @@ This directory contains GitHub Actions workflows for automating various tasks in
 
 Runs the automated test suite on push to the `main` branch and on pull requests.
 
-- Sets up MySQL service for testing
+- Sets up PostgreSQL service for testing
 - Installs Node.js dependencies
 - Creates a test environment configuration
 - Executes the test suite with Jest
