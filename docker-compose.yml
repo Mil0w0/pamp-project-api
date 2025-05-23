@@ -14,11 +14,12 @@ services:
   pamp-api:
     build: .
     ports:
-      - "3000:3000"
+      - "3001:3001"
     depends_on:
       - pamp-project-service
     environment:
       DATABASE_URL: postgres://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@pamp-project-service:5432/${DATABASE_NAME}
+      PORT: "3001"
     restart: unless-stopped
 volumes:
   pamp-project-db-data:
