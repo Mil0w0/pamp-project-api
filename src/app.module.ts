@@ -8,6 +8,9 @@ import { StudentBatchesController } from "./studentBatch/studentBatches.controll
 import { StudentBatchesService } from "./studentBatch/studentBatches.service";
 import { HttpModule } from "@nestjs/axios";
 import { StudentService } from "./studentBatch/students.service";
+import {Project} from "./project/project.entity";
+import {ProjectController} from "./project/project.controller";
+import {ProjectService} from "./project/project.service";
 
 @Module({
   imports: [
@@ -18,12 +21,12 @@ import { StudentService } from "./studentBatch/students.service";
       url:
         process.env.DATABASE_URL ||
         "postgres://postgres:postgres@localhost:5432/pamp_projects",
-      entities: [StudentBatch],
+      entities: [StudentBatch, Project],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([StudentBatch]),
+    TypeOrmModule.forFeature([StudentBatch, Project]),
   ],
-  controllers: [AppController, StudentBatchesController],
-  providers: [AppService, StudentBatchesService, StudentService],
+  controllers: [AppController, StudentBatchesController, ProjectController],
+  providers: [AppService, StudentBatchesService, StudentService, ProjectService],
 })
 export class AppModule {}
