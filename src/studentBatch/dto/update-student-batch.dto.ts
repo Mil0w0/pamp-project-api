@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {IsNotEmpty, IsOptional, IsString, IsUUID} from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { CreateStudent } from "./get-students-dao";
 export class PatchStudentBatchDto {
@@ -27,6 +27,16 @@ export class PatchStudentBatchDto {
   @IsOptional()
   tags?: string;
 
+  @ApiProperty({
+    required: false,
+  })
   @IsOptional()
   students?: CreateStudent[];
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsUUID()
+  projectId?: string;
 }

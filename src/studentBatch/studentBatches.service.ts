@@ -17,6 +17,7 @@ import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 import { StudentService } from "./students.service";
 import { GetStudent, StudentBatchReturned } from "./dto/get-students-dao";
+import * as process from "node:process";
 
 @Injectable()
 export class StudentBatchesService {
@@ -161,6 +162,11 @@ export class StudentBatchesService {
     console.log(fielsToUpdate);
     //TODO: check if student batch id exist
     try {
+      if(fielsToUpdate.projectId){
+        //TODO: if not null
+        //transform the fields to put the whole object in it
+      }
+
       if (fielsToUpdate.students && fielsToUpdate.students.length > 0) {
         console.log(fielsToUpdate.students);
         const studentsToCreate = [];

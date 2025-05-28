@@ -20,6 +20,16 @@ timestamp createdAt "default: CURRENT_TIMESTAMP"
 string name
 string tags "default: empty"
 string students "Comma-separated user IDs fetched from user service"
+string projectIds FK
+}
+
+PROJECTS {
+uuid id PK "Primary Key"
+bool isPublished "default: false"
+timestamp createdAt "default: CURRENT_TIMESTAMP"
+string name
+string description
+string studentBatchId FK
 }
 ```
 

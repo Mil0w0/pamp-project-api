@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryColumn } from "typeorm";
+import {Entity, Column, PrimaryColumn, OneToMany} from "typeorm";
+import {Project} from "../project/project.entity";
 @Entity()
 export class StudentBatch {
   @PrimaryColumn({ generated: "uuid" })
@@ -21,4 +22,10 @@ export class StudentBatch {
 
   @Column({ default: "" })
   students: string;
+
+  @OneToMany(() => Project, (project) => project.studentBatch , {
+    nullable: true,
+    onDelete: 'CASCADE', //delete the projects associated
+  })
+  projects: Project[];
 }
