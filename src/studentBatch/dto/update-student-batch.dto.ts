@@ -1,4 +1,4 @@
-import { IsOptional} from "class-validator";
+import { IsOptional } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { CreateStudent } from "./get-students-dao";
 export class PatchStudentBatchDto {
