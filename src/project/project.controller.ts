@@ -13,12 +13,12 @@ import {
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ProjectService } from "./project.service";
-import {PatchProjectDto} from "./dto/update-student-batch.dto";
+import {PatchProjectDto} from "./dto/update-project.dto";
 import {CreateProjectDto} from "./dto/create-project-dto";
 import {ListProjectsDto} from "./dto/list-projects-dto";
 
-@ApiTags("StudentBatches")
-@Controller("student-batches")
+@ApiTags("Projects")
+@Controller("projects")
 export class ProjectController {
   constructor(private readonly projectsService: ProjectService) {}
 

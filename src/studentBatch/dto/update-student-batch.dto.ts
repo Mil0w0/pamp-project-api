@@ -6,7 +6,6 @@ export class PatchStudentBatchDto {
     example: "INACTIVE",
     required: false,
   })
-  @IsString()
   @IsOptional()
   state?: "INACTIVE" | "ACTIVE";
 
@@ -14,8 +13,6 @@ export class PatchStudentBatchDto {
     example: "Promotion Y",
     required: false,
   })
-  @IsString()
-  @IsNotEmpty()
   @IsOptional()
   name?: string;
 
@@ -23,7 +20,6 @@ export class PatchStudentBatchDto {
     example: "ESGI, Paris",
     required: false,
   })
-  @IsString()
   @IsOptional()
   tags?: string;
 
@@ -37,6 +33,5 @@ export class PatchStudentBatchDto {
     required: false,
   })
   @IsOptional()
-  @IsUUID()
   projectId?: string;
 }

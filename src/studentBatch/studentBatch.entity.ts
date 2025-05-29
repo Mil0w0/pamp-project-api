@@ -2,7 +2,7 @@ import {Entity, Column, PrimaryColumn, OneToMany} from "typeorm";
 import {Project} from "../project/project.entity";
 @Entity()
 export class StudentBatch {
-  @PrimaryColumn({ generated: "uuid" })
+  @PrimaryColumn({ type: "uuid", generated: "uuid" })
   id: string;
 
   @Column({ default: "active" })
