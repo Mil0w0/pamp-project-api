@@ -15,5 +15,5 @@ export class CreateProjectDto {
     required: false,
   })
   @IsString()
-  description: Text;
+  description: string;
 }

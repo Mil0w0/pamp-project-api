@@ -1,11 +1,11 @@
 import {IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID} from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import {StudentBatch} from "../../studentBatch/studentBatch.entity";
 export class PatchProjectDto {
   @ApiProperty({
     example: true,
     required: false,
   })
-  @IsBoolean()
   @IsOptional()
   isPublished?: boolean;
 
@@ -13,13 +13,14 @@ export class PatchProjectDto {
     example: "pROJECT z",
     required: false,
   })
-  @IsString()
+  @IsOptional()
   name?: string;
 
   @ApiProperty({
     example: "PROJECT z is a project",
     required: false,
   })
+  @IsOptional()
   @IsString()
   description?: string;
 
@@ -27,7 +28,15 @@ export class PatchProjectDto {
     example: "aaae-enri-fzeuifzr",
     required: false,
   })
-  @IsUUID()
+  @IsOptional()
   studentBatchId?: string;
 
+}
+
+export type UpdatedProjectPatchDto = {
+  isPublished?: boolean;
+  name?: string;
+  description?: string;
+  studentBatch?: StudentBatch
+  studentBatchId?: string
 }

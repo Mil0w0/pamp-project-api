@@ -55,7 +55,7 @@ export class StudentBatchesService {
 
   async findOne(id: string, token: string) {
     try {
-      const studentBatch = await this.studentBatchsRepository.findOneBy({ id });
+      const studentBatch = await this.studentBatchsRepository.findOne({where: {id}, relations: ["projects"]});
       if (!studentBatch) {
         throw new NotFoundException(`Student batch '${id}' not found`);
       }
@@ -101,6 +101,7 @@ export class StudentBatchesService {
       const batches: StudentBatch[] = await this.studentBatchsRepository.find({
         take: limit || DEFAULT_ELEMENT_BY_PAGE,
         skip: (page - 1) * limit || 0,
+        relations: ['projects'],
       });
       const studentBatchs: StudentBatchReturned[] = [];
       for (const batch of batches) {
@@ -159,8 +160,6 @@ export class StudentBatchesService {
     let studentsIdsFormatted: string = "";
     let formattedFields = {};
 
-    console.log(fielsToUpdate);
-    //TODO: check if student batch id exist
     try {
       if(fielsToUpdate.projectId){
         //TODO: if not null
@@ -168,7 +167,7 @@ export class StudentBatchesService {
       }
 
       if (fielsToUpdate.students && fielsToUpdate.students.length > 0) {
-        console.log(fielsToUpdate.students);
+
         const studentsToCreate = [];
         const studentsIds = [];
         for (const student of fielsToUpdate.students) {
@@ -201,7 +200,7 @@ export class StudentBatchesService {
         id,
         fielsToUpdate.students ? formattedFields : fielsToUpdate,
       );
-      return await this.studentBatchsRepository.findOne({ where: { id } });
+      return await this.studentBatchsRepository.findOne({ where: { id }, relations: ['projects'] });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }

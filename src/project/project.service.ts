@@ -10,13 +10,16 @@ import {Project} from "./project.entity";
 import { DEFAULT_ELEMENT_BY_PAGE,  } from "../constants";
 import {CreateProjectDto} from "./dto/create-project-dto";
 import {ListProjectsDto} from "./dto/list-projects-dto";
-import {PatchProjectDto} from "./dto/update-student-batch.dto";
+import {PatchProjectDto, UpdatedProjectPatchDto} from "./dto/update-project.dto";
+import {StudentBatch} from "../studentBatch/studentBatch.entity";
 
 @Injectable()
 export class ProjectService {
   constructor(
     @InjectRepository(Project)
-    private projectsRepository: Repository<Project>
+    private projectsRepository: Repository<Project>,
+    @InjectRepository(StudentBatch)
+    private studentBatchRepository: Repository<StudentBatch>
   ) {}
 
   async create(project: CreateProjectDto): Promise<Project> {
@@ -63,6 +66,7 @@ export class ProjectService {
       return await this.projectsRepository.find({
         take: limit || DEFAULT_ELEMENT_BY_PAGE,
         skip: (page - 1) * limit || 0,
+        relations: ['studentBatch']
       });
 
     } catch (error) {
@@ -80,12 +84,20 @@ export class ProjectService {
     id: string,
     fielsToUpdate: PatchProjectDto,
   ): Promise<Project> {
+
+      let formattedDto : UpdatedProjectPatchDto = {...fielsToUpdate}
+      if (fielsToUpdate.studentBatchId) {
+        const batch = await this.studentBatchRepository.findOne({ where: { id: fielsToUpdate.studentBatchId }, relations: ['projects'] });
+        if (!batch) throw new BadRequestException('Student batch not found');
+        delete formattedDto.studentBatchId;
+        formattedDto.studentBatch = batch;
+      }
     try {
       await this.projectsRepository.update(
           id,
-          fielsToUpdate,
+          formattedDto,
       );
-      return await this.projectsRepository.findOne({ where: { id } });
+      return await this.projectsRepository.findOne({ where: { id }, relations: ['studentBatch'] });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
