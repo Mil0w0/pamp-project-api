@@ -17,7 +17,7 @@ import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 import { StudentService } from "./students.service";
 import { GetStudent, StudentBatchReturned } from "./dto/get-students-dao";
-import {ConfigService} from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class StudentBatchesService {
@@ -26,10 +26,10 @@ export class StudentBatchesService {
     private studentBatchsRepository: Repository<StudentBatch>,
     private readonly studentService: StudentService,
     private readonly httpService: HttpService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
-  public USER_SERVICE_URL = this.configService.get<string>('USER_SERVICE_URL')
+  public USER_SERVICE_URL = this.configService.get<string>("USER_SERVICE_URL");
 
   async create(studentBatch: CreateStudentBatchDto): Promise<StudentBatch> {
     try {
@@ -69,26 +69,26 @@ export class StudentBatchesService {
 
       //Get students info from user microservice and rebuild an answer object
       if (studentBatch.students && studentBatch.students.length > 0) {
-        try{
-        const { data } = await firstValueFrom(
-          this.httpService
-            .get<GetStudent[]>(
-              `${(this.USER_SERVICE_URL)}/users?ids=${studentBatch.students}`,
-              {
-                headers: {
-                  Authorization: token,
+        try {
+          const { data } = await firstValueFrom(
+            this.httpService
+              .get<GetStudent[]>(
+                `${this.USER_SERVICE_URL}/users?ids=${studentBatch.students}`,
+                {
+                  headers: {
+                    Authorization: token,
+                  },
                 },
-              },
-            )
-            .pipe(
-              catchError((error: AxiosError) => {
-                throw new InternalServerErrorException(`Error: ${error}`);
-              }),
-            ),
-        );
+              )
+              .pipe(
+                catchError((error: AxiosError) => {
+                  throw new InternalServerErrorException(`Error: ${error}`);
+                }),
+              ),
+          );
           return { ...studentBatch, students: data };
-        }catch(error) {
-          return { ...studentBatch, students: [] }
+        } catch (error) {
+          return { ...studentBatch, students: [] };
         }
       }
       return { ...studentBatch, students: [] };
@@ -105,7 +105,7 @@ export class StudentBatchesService {
    * Get all student batches with pagination
    */
   async findAll(
-      //FIXME: big issues with user service calls
+    //FIXME: big issues with user service calls
     { limit, page }: ListStudentBatchesDto,
     token: string,
   ): Promise<StudentBatchReturned[]> {
@@ -173,7 +173,6 @@ export class StudentBatchesService {
     let formattedFields = {};
 
     try {
-
       if (fielsToUpdate.students && fielsToUpdate.students.length > 0) {
         const studentsToCreate = [];
         const studentsIds = [];
@@ -205,7 +204,9 @@ export class StudentBatchesService {
       }
       await this.studentBatchsRepository.update(
         id,
-        fielsToUpdate.students && fielsToUpdate.students.length > 0? formattedFields : fielsToUpdate,
+        fielsToUpdate.students && fielsToUpdate.students.length > 0
+          ? formattedFields
+          : fielsToUpdate,
       );
       return await this.studentBatchsRepository.findOne({
         where: { id },

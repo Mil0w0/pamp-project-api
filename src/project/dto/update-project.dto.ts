@@ -1,7 +1,4 @@
-import {
-  IsOptional,
-  IsString,
-} from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 import { StudentBatch } from "../../studentBatch/studentBatch.entity";
 export class PatchProjectDto {

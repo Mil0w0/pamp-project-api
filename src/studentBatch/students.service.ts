@@ -7,13 +7,16 @@ import {
   CreateStudentsResponse,
   GetStudent,
 } from "./dto/get-students-dao";
-import {ConfigService} from "@nestjs/config";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly httpService: HttpService, private readonly configService: ConfigService) {}
+  constructor(
+    private readonly httpService: HttpService,
+    private readonly configService: ConfigService,
+  ) {}
 
-    public USER_SERVICE_URL = this.configService.get<string>("USER_SERVICE_URL");
+  public USER_SERVICE_URL = this.configService.get<string>("USER_SERVICE_URL");
   /*Returns number of students created*/
   async createStudentsAccount(
     students: CreateStudent[],

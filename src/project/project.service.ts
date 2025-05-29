@@ -45,7 +45,10 @@ export class ProjectService {
 
   async findOne(id: string) {
     try {
-      const project = await this.projectsRepository.findOne({where: {id}, relations: ["studentBatch"]});
+      const project = await this.projectsRepository.findOne({
+        where: { id },
+        relations: ["studentBatch"],
+      });
       if (!project) {
         throw new NotFoundException(`Project '${id}' not found`);
       }
@@ -111,12 +114,15 @@ export class ProjectService {
   }
 
   async copy(projectId: string) {
-    const originalProject = await this.projectsRepository.findOne({where: {id: projectId}, relations: ["studentBatch"]});
+    const originalProject = await this.projectsRepository.findOne({
+      where: { id: projectId },
+      relations: ["studentBatch"],
+    });
     const { id, createdAt, ...rest } = originalProject;
     const clonedProject = this.projectsRepository.create({
       ...rest,
       name: `${originalProject.name} (Copy)`,
-      isPublished: false
+      isPublished: false,
     });
     await this.projectsRepository.save(clonedProject);
     return clonedProject;
