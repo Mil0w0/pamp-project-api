@@ -17,7 +17,6 @@ import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 import { StudentService } from "./students.service";
 import { GetStudent, StudentBatchReturned } from "./dto/get-students-dao";
-import * as process from "node:process";
 
 @Injectable()
 export class StudentBatchesService {
@@ -55,7 +54,10 @@ export class StudentBatchesService {
 
   async findOne(id: string, token: string) {
     try {
-      const studentBatch = await this.studentBatchsRepository.findOne({where: {id}, relations: ["projects"]});
+      const studentBatch = await this.studentBatchsRepository.findOne({
+        where: { id },
+        relations: ["projects"],
+      });
       if (!studentBatch) {
         throw new NotFoundException(`Student batch '${id}' not found`);
       }
@@ -101,7 +103,7 @@ export class StudentBatchesService {
       const batches: StudentBatch[] = await this.studentBatchsRepository.find({
         take: limit || DEFAULT_ELEMENT_BY_PAGE,
         skip: (page - 1) * limit || 0,
-        relations: ['projects'],
+        relations: ["projects"],
       });
       const studentBatchs: StudentBatchReturned[] = [];
       for (const batch of batches) {
@@ -161,13 +163,12 @@ export class StudentBatchesService {
     let formattedFields = {};
 
     try {
-      if(fielsToUpdate.projectId){
+      if (fielsToUpdate.projectId) {
         //TODO: if not null
         //transform the fields to put the whole object in it
       }
 
       if (fielsToUpdate.students && fielsToUpdate.students.length > 0) {
-
         const studentsToCreate = [];
         const studentsIds = [];
         for (const student of fielsToUpdate.students) {
@@ -200,7 +201,10 @@ export class StudentBatchesService {
         id,
         fielsToUpdate.students ? formattedFields : fielsToUpdate,
       );
-      return await this.studentBatchsRepository.findOne({ where: { id }, relations: ['projects'] });
+      return await this.studentBatchsRepository.findOne({
+        where: { id },
+        relations: ["projects"],
+      });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
