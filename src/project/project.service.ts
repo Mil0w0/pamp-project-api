@@ -109,4 +109,16 @@ export class ProjectService {
     await this.projectsRepository.delete(project.id);
     return project;
   }
+
+  async copy(projectId: string) {
+    const originalProject = await this.projectsRepository.findOne({where: {id: projectId}, relations: ["studentBatch"]});
+    const { id, createdAt, ...rest } = originalProject;
+    const clonedProject = this.projectsRepository.create({
+      ...rest,
+      name: `${originalProject.name} (Copy)`,
+      isPublished: false
+    });
+    await this.projectsRepository.save(clonedProject);
+    return clonedProject;
+  }
 }

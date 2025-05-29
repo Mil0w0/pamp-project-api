@@ -1,5 +1,4 @@
 import { catchError, firstValueFrom, of } from "rxjs";
-import { USER_SERVICE_URL } from "../constants";
 import { AxiosError } from "axios";
 import { Injectable, InternalServerErrorException } from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
@@ -8,11 +7,13 @@ import {
   CreateStudentsResponse,
   GetStudent,
 } from "./dto/get-students-dao";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class StudentService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService, private readonly configService: ConfigService) {}
 
+    public USER_SERVICE_URL = this.configService.get<string>("USER_SERVICE_URL");
   /*Returns number of students created*/
   async createStudentsAccount(
     students: CreateStudent[],
@@ -31,7 +32,7 @@ export class StudentService {
       const { data } = await firstValueFrom(
         this.httpService
           .post<CreateStudentsResponse>(
-            `${USER_SERVICE_URL}/register/students`,
+            `${this.USER_SERVICE_URL}/register/students`,
             { students: newStudents },
             {
               headers: {
@@ -66,7 +67,7 @@ export class StudentService {
       const { status } = await firstValueFrom(
         this.httpService
           .get<GetStudent>(
-            `${USER_SERVICE_URL}/users/email/${encodeURIComponent(studentEmail)}`,
+            `${this.USER_SERVICE_URL}/users/email/${encodeURIComponent(studentEmail)}`,
             {
               headers: {
                 Authorization: token,

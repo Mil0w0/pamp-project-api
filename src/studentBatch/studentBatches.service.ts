@@ -10,13 +10,14 @@ import { StudentBatch } from "./studentBatch.entity";
 import { CreateStudentBatchDto } from "./dto/create-student-batch-dto";
 import { StudentBatchesValidator } from "./dto/studentBatches.validator";
 import { ListStudentBatchesDto } from "./dto/list-student-batches.dto";
-import { DEFAULT_ELEMENT_BY_PAGE, USER_SERVICE_URL } from "../constants";
+import { DEFAULT_ELEMENT_BY_PAGE } from "../constants";
 import { PatchStudentBatchDto } from "./dto/update-student-batch.dto";
 import { HttpService } from "@nestjs/axios";
 import { catchError, firstValueFrom } from "rxjs";
 import { AxiosError } from "axios";
 import { StudentService } from "./students.service";
 import { GetStudent, StudentBatchReturned } from "./dto/get-students-dao";
+import {ConfigService} from "@nestjs/config";
 
 @Injectable()
 export class StudentBatchesService {
@@ -25,7 +26,10 @@ export class StudentBatchesService {
     private studentBatchsRepository: Repository<StudentBatch>,
     private readonly studentService: StudentService,
     private readonly httpService: HttpService,
+    private configService: ConfigService
   ) {}
+
+  public USER_SERVICE_URL = this.configService.get<string>('USER_SERVICE_URL')
 
   async create(studentBatch: CreateStudentBatchDto): Promise<StudentBatch> {
     try {
@@ -61,13 +65,15 @@ export class StudentBatchesService {
       if (!studentBatch) {
         throw new NotFoundException(`Student batch '${id}' not found`);
       }
+      console.log(studentBatch);
 
       //Get students info from user microservice and rebuild an answer object
       if (studentBatch.students && studentBatch.students.length > 0) {
+        try{
         const { data } = await firstValueFrom(
           this.httpService
             .get<GetStudent[]>(
-              `${USER_SERVICE_URL}/users?ids=${studentBatch.students}`,
+              `${(this.USER_SERVICE_URL)}/users?ids=${studentBatch.students}`,
               {
                 headers: {
                   Authorization: token,
@@ -80,7 +86,10 @@ export class StudentBatchesService {
               }),
             ),
         );
-        return { ...studentBatch, students: data };
+          return { ...studentBatch, students: data };
+        }catch(error) {
+          return { ...studentBatch, students: [] }
+        }
       }
       return { ...studentBatch, students: [] };
     } catch (error) {
@@ -96,6 +105,7 @@ export class StudentBatchesService {
    * Get all student batches with pagination
    */
   async findAll(
+      //FIXME: big issues with user service calls
     { limit, page }: ListStudentBatchesDto,
     token: string,
   ): Promise<StudentBatchReturned[]> {
@@ -112,7 +122,7 @@ export class StudentBatchesService {
             const { data } = await firstValueFrom(
               this.httpService
                 .get<GetStudent[]>(
-                  `${USER_SERVICE_URL}/users?ids=${batch.students}`,
+                  `${this.USER_SERVICE_URL}/users?ids=${batch.students}`,
                   {
                     headers: { Authorization: token },
                   },
@@ -163,10 +173,6 @@ export class StudentBatchesService {
     let formattedFields = {};
 
     try {
-      if (fielsToUpdate.projectId) {
-        //TODO: if not null
-        //transform the fields to put the whole object in it
-      }
 
       if (fielsToUpdate.students && fielsToUpdate.students.length > 0) {
         const studentsToCreate = [];
@@ -199,7 +205,7 @@ export class StudentBatchesService {
       }
       await this.studentBatchsRepository.update(
         id,
-        fielsToUpdate.students ? formattedFields : fielsToUpdate,
+        fielsToUpdate.students && fielsToUpdate.students.length > 0? formattedFields : fielsToUpdate,
       );
       return await this.studentBatchsRepository.findOne({
         where: { id },
