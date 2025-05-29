@@ -88,6 +88,7 @@ export class StudentBatchesService {
           );
           return { ...studentBatch, students: data };
         } catch (error) {
+          console.error(error);
           return { ...studentBatch, students: [] };
         }
       }

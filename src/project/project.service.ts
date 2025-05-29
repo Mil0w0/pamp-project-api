@@ -119,6 +119,7 @@ export class ProjectService {
       relations: ["studentBatch"],
     });
     const { id, createdAt, ...rest } = originalProject;
+    console.log(id, createdAt);
     const clonedProject = this.projectsRepository.create({
       ...rest,
       name: `${originalProject.name} (Copy)`,
