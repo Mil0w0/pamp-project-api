@@ -78,4 +78,17 @@ export class ProjectController {
   async delete(@Param("id") id: string) {
     return this.projectsService.delete(id);
   }
+
+  @Post(":id")
+  @ApiResponse({
+    status: 200,
+    description: "The project has been successfully copied.",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Original project not found",
+  })
+  async copy(@Param("id") id: string) {
+    return this.projectsService.copy(id);
+  }
 }

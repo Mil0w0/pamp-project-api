@@ -15,7 +15,9 @@ import { ProjectService } from "./project/project.service";
 @Module({
   imports: [
     HttpModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({
+      isGlobal: true, // Enable env var
+    }),
     TypeOrmModule.forRoot({
       type: "postgres",
       url:
