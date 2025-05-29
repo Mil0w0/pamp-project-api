@@ -7,15 +7,14 @@ import {
   Patch,
   Post,
   Query,
-  Req,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ProjectService } from "./project.service";
-import {PatchProjectDto} from "./dto/update-project.dto";
-import {CreateProjectDto} from "./dto/create-project-dto";
-import {ListProjectsDto} from "./dto/list-projects-dto";
+import { PatchProjectDto } from "./dto/update-project.dto";
+import { CreateProjectDto } from "./dto/create-project-dto";
+import { ListProjectsDto } from "./dto/list-projects-dto";
 
 @ApiTags("Projects")
 @Controller("projects")
@@ -45,14 +44,8 @@ export class ProjectController {
     description: "Json structure for update project object",
   })
   @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
-  async patch(
-    @Body() project: PatchProjectDto,
-    @Param("id") id: string,
-  ) {
-    return this.projectsService.update(
-      id,
-        project
-    );
+  async patch(@Body() project: PatchProjectDto, @Param("id") id: string) {
+    return this.projectsService.update(id, project);
   }
 
   @Get(":id")

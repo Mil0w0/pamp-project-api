@@ -8,9 +8,9 @@ import { StudentBatchesController } from "./studentBatch/studentBatches.controll
 import { StudentBatchesService } from "./studentBatch/studentBatches.service";
 import { HttpModule } from "@nestjs/axios";
 import { StudentService } from "./studentBatch/students.service";
-import {Project} from "./project/project.entity";
-import {ProjectController} from "./project/project.controller";
-import {ProjectService} from "./project/project.service";
+import { Project } from "./project/project.entity";
+import { ProjectController } from "./project/project.controller";
+import { ProjectService } from "./project/project.service";
 
 @Module({
   imports: [
@@ -27,6 +27,11 @@ import {ProjectService} from "./project/project.service";
     TypeOrmModule.forFeature([StudentBatch, Project]),
   ],
   controllers: [AppController, StudentBatchesController, ProjectController],
-  providers: [AppService, StudentBatchesService, StudentService, ProjectService],
+  providers: [
+    AppService,
+    StudentBatchesService,
+    StudentService,
+    ProjectService,
+  ],
 })
 export class AppModule {}

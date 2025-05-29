@@ -6,12 +6,15 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import {Project} from "./project.entity";
-import { DEFAULT_ELEMENT_BY_PAGE,  } from "../constants";
-import {CreateProjectDto} from "./dto/create-project-dto";
-import {ListProjectsDto} from "./dto/list-projects-dto";
-import {PatchProjectDto, UpdatedProjectPatchDto} from "./dto/update-project.dto";
-import {StudentBatch} from "../studentBatch/studentBatch.entity";
+import { Project } from "./project.entity";
+import { DEFAULT_ELEMENT_BY_PAGE } from "../constants";
+import { CreateProjectDto } from "./dto/create-project-dto";
+import { ListProjectsDto } from "./dto/list-projects-dto";
+import {
+  PatchProjectDto,
+  UpdatedProjectPatchDto,
+} from "./dto/update-project.dto";
+import { StudentBatch } from "../studentBatch/studentBatch.entity";
 
 @Injectable()
 export class ProjectService {
@@ -19,11 +22,10 @@ export class ProjectService {
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
     @InjectRepository(StudentBatch)
-    private studentBatchRepository: Repository<StudentBatch>
+    private studentBatchRepository: Repository<StudentBatch>,
   ) {}
 
   async create(project: CreateProjectDto): Promise<Project> {
-
     const otherProject = await this.projectsRepository.findOneBy({
       name: project.name,
     });
@@ -59,16 +61,13 @@ export class ProjectService {
    * @param page : number
    * Get all student batches with pagination
    */
-  async findAll(
-    { limit, page }: ListProjectsDto,
-  ) {
+  async findAll({ limit, page }: ListProjectsDto) {
     try {
       return await this.projectsRepository.find({
         take: limit || DEFAULT_ELEMENT_BY_PAGE,
         skip: (page - 1) * limit || 0,
-        relations: ['studentBatch']
+        relations: ["studentBatch"],
       });
-
     } catch (error) {
       throw new InternalServerErrorException(`Oospie doopsie. ${error}`);
     }
@@ -80,24 +79,23 @@ export class ProjectService {
    * @param id : string
    * Update the promotion
    */
-  async update(
-    id: string,
-    fielsToUpdate: PatchProjectDto,
-  ): Promise<Project> {
-
-      let formattedDto : UpdatedProjectPatchDto = {...fielsToUpdate}
-      if (fielsToUpdate.studentBatchId) {
-        const batch = await this.studentBatchRepository.findOne({ where: { id: fielsToUpdate.studentBatchId }, relations: ['projects'] });
-        if (!batch) throw new BadRequestException('Student batch not found');
-        delete formattedDto.studentBatchId;
-        formattedDto.studentBatch = batch;
-      }
+  async update(id: string, fielsToUpdate: PatchProjectDto): Promise<Project> {
+    const formattedDto: UpdatedProjectPatchDto = { ...fielsToUpdate };
+    if (fielsToUpdate.studentBatchId) {
+      const batch = await this.studentBatchRepository.findOne({
+        where: { id: fielsToUpdate.studentBatchId },
+        relations: ["projects"],
+      });
+      if (!batch) throw new BadRequestException("Student batch not found");
+      delete formattedDto.studentBatchId;
+      formattedDto.studentBatch = batch;
+    }
     try {
-      await this.projectsRepository.update(
-          id,
-          formattedDto,
-      );
-      return await this.projectsRepository.findOne({ where: { id }, relations: ['studentBatch'] });
+      await this.projectsRepository.update(id, formattedDto);
+      return await this.projectsRepository.findOne({
+        where: { id },
+        relations: ["studentBatch"],
+      });
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
