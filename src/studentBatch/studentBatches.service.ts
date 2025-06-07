@@ -172,19 +172,24 @@ export class StudentBatchesService {
   ): Promise<StudentBatch> {
     let studentsIdsFormatted: string = "";
     let formattedFields = {};
-
     try {
       if (fielsToUpdate.students && fielsToUpdate.students.length > 0) {
         const studentsToCreate = [];
         const studentsIds = [];
-        for (const student of fielsToUpdate.students) {
+        for (const studentId of fielsToUpdate.students) {
           /**
            * Already created students are just added to the studentIds
            * While the others need to be created
            * All students needs to be notified that they got added to a batch.
            * */
           const doesStudentHaveAccount = await this.studentService.hasAccount(
-            student.email,
+            studentId.toString(),
+            token,
+          );
+          //If the student doesn't have an account, we create it by fetching the
+          // user info from the user service'
+          const student = await this.studentService.getStudent(
+            studentId.toString(),
             token,
           );
           if (!doesStudentHaveAccount) {

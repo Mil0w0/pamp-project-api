@@ -1,6 +1,10 @@
 import { catchError, firstValueFrom, of } from "rxjs";
 import { AxiosError } from "axios";
-import { Injectable, InternalServerErrorException } from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import {
   CreateStudent,
@@ -62,15 +66,15 @@ export class StudentService {
 
   /**
    * Check if student has an account already thx to their email
-   * @param studentEmail
+   * @param studentId
    * @param token
    */
-  async hasAccount(studentEmail: string, token: string): Promise<boolean> {
+  async hasAccount(studentId: string, token: string): Promise<boolean> {
     try {
       const { status } = await firstValueFrom(
         this.httpService
           .get<GetStudent>(
-            `${this.USER_SERVICE_URL}/users/email/${encodeURIComponent(studentEmail)}`,
+            `${this.USER_SERVICE_URL}/users/${encodeURIComponent(studentId)}`,
             {
               headers: {
                 Authorization: token,
@@ -93,6 +97,44 @@ export class StudentService {
       return status !== 404;
     } catch (error) {
       throw new InternalServerErrorException(`${error}`);
+    }
+  }
+  /**
+   * Retrieve a student by their ID
+   * @param studentId - The unique identifier of the student
+   * @param token - Authentication token
+   * @returns Promise containing student data
+   * @throws NotFoundException if student doesn't exist
+   * @throws InternalServerErrorException if server error occurs
+   */
+  async getStudent(studentId: string, token: string): Promise<GetStudent> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService
+          .get<GetStudent>(
+            `${this.USER_SERVICE_URL}/users/${encodeURIComponent(studentId)}`,
+            {
+              headers: {
+                Authorization: token,
+              },
+            },
+          )
+          .pipe(
+            catchError((error: AxiosError) => {
+              if (error.response?.status === 404) {
+                throw new NotFoundException(
+                  `Student with ID ${studentId} not found`,
+                );
+              }
+              throw new InternalServerErrorException(
+                `Error while fetching student: ${error.message}`,
+              );
+            }),
+          ),
+      );
+      return data;
+    } catch (error) {
+      throw error; // Propagate the error already handled in catchError
     }
   }
 }
