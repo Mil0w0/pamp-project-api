@@ -1,6 +1,10 @@
 import { catchError, firstValueFrom, of } from "rxjs";
 import { AxiosError } from "axios";
-import {Injectable, InternalServerErrorException, NotFoundException} from "@nestjs/common";
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
 import { HttpService } from "@nestjs/axios";
 import {
   CreateStudent,
@@ -95,41 +99,42 @@ export class StudentService {
       throw new InternalServerErrorException(`${error}`);
     }
   }
-    /**
-     * Retrieve a student by their ID
-     * @param studentId - The unique identifier of the student
-     * @param token - Authentication token
-     * @returns Promise containing student data
-     * @throws NotFoundException if student doesn't exist
-     * @throws InternalServerErrorException if server error occurs
-     */
-    async getStudent(studentId: string, token: string): Promise<GetStudent> {
-        try {
-            const { data } = await firstValueFrom(
-                this.httpService
-                    .get<GetStudent>(
-                        `${this.USER_SERVICE_URL}/users/${encodeURIComponent(studentId)}`,
-                        {
-                            headers: {
-                                Authorization: token,
-                            },
-                        },
-                    )
-                    .pipe(
-                        catchError((error: AxiosError) => {
-                            if (error.response?.status === 404) {
-                                throw new NotFoundException(`Student with ID ${studentId} not found`);
-                            }
-                            throw new InternalServerErrorException(
-                                `Error while fetching student: ${error.message}`,
-                            );
-                        }),
-                    ),
-            );
-            return data;
-        } catch (error) {
-            throw error; // Propagate the error already handled in catchError
-        }
+  /**
+   * Retrieve a student by their ID
+   * @param studentId - The unique identifier of the student
+   * @param token - Authentication token
+   * @returns Promise containing student data
+   * @throws NotFoundException if student doesn't exist
+   * @throws InternalServerErrorException if server error occurs
+   */
+  async getStudent(studentId: string, token: string): Promise<GetStudent> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService
+          .get<GetStudent>(
+            `${this.USER_SERVICE_URL}/users/${encodeURIComponent(studentId)}`,
+            {
+              headers: {
+                Authorization: token,
+              },
+            },
+          )
+          .pipe(
+            catchError((error: AxiosError) => {
+              if (error.response?.status === 404) {
+                throw new NotFoundException(
+                  `Student with ID ${studentId} not found`,
+                );
+              }
+              throw new InternalServerErrorException(
+                `Error while fetching student: ${error.message}`,
+              );
+            }),
+          ),
+      );
+      return data;
+    } catch (error) {
+      throw error; // Propagate the error already handled in catchError
     }
-
+  }
 }

@@ -177,8 +177,6 @@ export class StudentBatchesService {
         const studentsToCreate = [];
         const studentsIds = [];
         for (const studentId of fielsToUpdate.students) {
-
-
           /**
            * Already created students are just added to the studentIds
            * While the others need to be created
@@ -191,10 +189,10 @@ export class StudentBatchesService {
           //If the student doesn't have an account, we create it by fetching the
           // user info from the user service'
           const student = await this.studentService.getStudent(
-              studentId.toString(),
-              token);
+            studentId.toString(),
+            token,
+          );
           if (!doesStudentHaveAccount) {
-
             studentsToCreate.push(student);
           }
           studentsIds.push(student.user_id);
