@@ -31,6 +31,14 @@ string name
 string description
 string studentBatchId FK
 }
+
+PROJECT_GROUPS {
+uuid id PK "Primary Key"
+timestamp createdAt "default: CURRENT_TIMESTAMP"
+string name
+string projectId FK
+string studentsIds
+}
 ```
 
 ### Authors :
