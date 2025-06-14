@@ -47,7 +47,7 @@ export class ProjectService {
     try {
       const project = await this.projectsRepository.findOne({
         where: { id },
-        relations: ["studentBatch"],
+        relations: ["studentBatch", "groups"],
       });
       if (!project) {
         throw new NotFoundException(`Project '${id}' not found`);
@@ -69,7 +69,7 @@ export class ProjectService {
       return await this.projectsRepository.find({
         take: limit || DEFAULT_ELEMENT_BY_PAGE,
         skip: (page - 1) * limit || 0,
-        relations: ["studentBatch"],
+        relations: ["studentBatch", "groups"],
       });
     } catch (error) {
       throw new InternalServerErrorException(`Oospie doopsie. ${error}`);
@@ -97,7 +97,7 @@ export class ProjectService {
       await this.projectsRepository.update(id, formattedDto);
       return await this.projectsRepository.findOne({
         where: { id },
-        relations: ["studentBatch"],
+        relations: ["studentBatch", "groups"],
       });
     } catch (error) {
       throw new InternalServerErrorException(error);
@@ -118,8 +118,8 @@ export class ProjectService {
       where: { id: projectId },
       relations: ["studentBatch"],
     });
-    const { id, createdAt, ...rest } = originalProject;
-    console.log(id, createdAt);
+    const { id, createdAt, groups, studentBatch, ...rest } = originalProject;
+    console.log(id, createdAt, groups, studentBatch);
     const clonedProject = this.projectsRepository.create({
       ...rest,
       name: `${originalProject.name} (Copy)`,

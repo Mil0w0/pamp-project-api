@@ -95,4 +95,41 @@ export class StudentService {
       throw new InternalServerErrorException(`${error}`);
     }
   }
+
+
+  /**
+   * Check if student has an account already thx to their id
+   * @param id
+   * @param token
+   */
+  async hasAccountWithId(id: string, token: string): Promise<boolean> {
+    try {
+      const { status } = await firstValueFrom(
+        this.httpService
+          .get<GetStudent>(
+            `${this.USER_SERVICE_URL}/users/${id}`,
+            {
+              headers: {
+                Authorization: token,
+              },
+            },
+          )
+          .pipe(
+            catchError((error: AxiosError) => {
+              if (error.response?.status === 404) {
+                return of({ status: 404 } as never); // Return mock response to indicate 404
+              } else {
+                throw new InternalServerErrorException(
+                  `Error while checking if student exists with id: ${error.message}`,
+                );
+              }
+            }),
+          ),
+      );
+      //If the student isn't found return false else return true
+      return status !== 404;
+    } catch (error) {
+      throw new InternalServerErrorException(`${error}`);
+    }
+  }
 }
