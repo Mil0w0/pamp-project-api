@@ -29,6 +29,26 @@
 					"response": []
 				},
 				{
+					"name": "Copy project",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/projects/9afa2248-7f83-4fae-9c37-669b76b733c2",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"projects",
+								"9afa2248-7f83-4fae-9c37-669b76b733c2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "List projec",
 					"request": {
 						"method": "GET",
@@ -55,7 +75,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n     \"isPublished\": true\n}",
+							"raw": "{\n     \"studentBatchId\": \"d5d8ca7c-3399-4f84-afc5-07405385e139\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -63,7 +83,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3001/projects/9afa2248-7f83-4fae-9c37-669b76b733c2",
+							"raw": "http://localhost:3001/projects/c4b6535c-582b-4219-84aa-73f93b2f9184",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -71,7 +91,7 @@
 							"port": "3001",
 							"path": [
 								"projects",
-								"9afa2248-7f83-4fae-9c37-669b76b733c2"
+								"c4b6535c-582b-4219-84aa-73f93b2f9184"
 							]
 						}
 					},
@@ -133,17 +153,27 @@
 				{
 					"name": "List batches",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNmZmNWY2NS03ODI5LTQ4OTctOTNjMS05NGQwMDQxMGM1N2IiLCJleHAiOjE3NTAwMDIwNDAsImlhdCI6MTc0OTkxNTY0MCwiZW1haWwiOiJsb3JpYW5lLmhpbGRlcmFsQGdtYWlsLmNvbSIsInJvbGUiOiJURUFDSEVSIn0.IImu1caVKCySJMpmWFIyxQjWM8DlJy-2xyAL76jQLpM",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/projects",
+							"raw": "http://localhost:3001/student-batches",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3001",
 							"path": [
-								"projects"
+								"student-batches"
 							]
 						}
 					},
@@ -155,15 +185,15 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/projects/9afa2248-7f83-4fae-9c37-669b76b733c2",
+							"raw": "http://localhost:3001/student-batches/1ffdf25a-c508-4a73-be4c-10500af2c318",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3001",
 							"path": [
-								"projects",
-								"9afa2248-7f83-4fae-9c37-669b76b733c2"
+								"student-batches",
+								"1ffdf25a-c508-4a73-be4c-10500af2c318"
 							]
 						}
 					},
@@ -184,7 +214,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3001/projects/9afa2248-7f83-4fae-9c37-669b76b733c2",
+							"raw": "http://localhost:3001/projects/1ffdf25a-c508-4a73-be4c-10500af2c318",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -192,7 +222,7 @@
 							"port": "3001",
 							"path": [
 								"projects",
-								"9afa2248-7f83-4fae-9c37-669b76b733c2"
+								"1ffdf25a-c508-4a73-be4c-10500af2c318"
 							]
 						}
 					},
@@ -204,14 +234,14 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/projects/bc9ec5bb-0091-4bae-8310-a21525e70cff",
+							"raw": "http://localhost:3001/student-batches/bc9ec5bb-0091-4bae-8310-a21525e70cff",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3001",
 							"path": [
-								"projects",
+								"student-batches",
 								"bc9ec5bb-0091-4bae-8310-a21525e70cff"
 							]
 						}
@@ -225,7 +255,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Second project\",\n    \"description\": \"This is the first project ever\"\n}",
+							"raw": "{\n    \"name\": \"Second Batch\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -233,14 +263,96 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:3001/projects",
+							"raw": "http://localhost:3001/student-batches",
 							"protocol": "http",
 							"host": [
 								"localhost"
 							],
 							"port": "3001",
 							"path": [
-								"projects"
+								"student-batches"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "project GROUPS",
+			"item": [
+				{
+					"name": "Create a group for a project",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyNmZmNWY2NS03ODI5LTQ4OTctOTNjMS05NGQwMDQxMGM1N2IiLCJleHAiOjE3NTAwMDIwNDAsImlhdCI6MTc0OTkxNTY0MCwiZW1haWwiOiJsb3JpYW5lLmhpbGRlcmFsQGdtYWlsLmNvbSIsInJvbGUiOiJURUFDSEVSIn0.IImu1caVKCySJMpmWFIyxQjWM8DlJy-2xyAL76jQLpM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"projectId\": \"c4b6535c-582b-4219-84aa-73f93b2f9184\",\n    \"groups\":[\n        {\n            \"name\": \"Group 1\",\n            \"studentsIds\": \"b5600203-9c53-45eb-81c0-bfaf7c804da0,7d968311-e7d0-42f0-8266-ea863c9adef0\",\n            \"projectId\": \"c4b6535c-582b-4219-84aa-73f93b2f9184\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/projectGroups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"projectGroups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List project GROUPS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/projectGroups",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"projectGroups"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Copy",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/projectGroups/99020a6d-040d-4db5-bd48-254be2821360",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"projectGroups",
+								"99020a6d-040d-4db5-bd48-254be2821360"
 							]
 						}
 					},
