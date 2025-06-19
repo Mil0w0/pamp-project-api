@@ -18,6 +18,7 @@ import { PatchGroupProjectDto } from "./dto/update-project.dto";
 import { ListProjectGroupsDto } from "./dto/list-projects-dto";
 import { CreateBatchGroupsDto } from "./dto/create-project-dto";
 import { StudentService } from "../studentBatch/students.service";
+import { ReportDefinitionService } from "../report/reportDefinition.service";
 
 @ApiTags("ProjectGroups")
 @Controller("projectGroups")
@@ -25,6 +26,7 @@ export class ProjectGroupController {
   constructor(
     private readonly projectGroup: ProjectGroupService,
     private readonly studentService: StudentService,
+    private readonly reportDefinitionService: ReportDefinitionService,
   ) {}
 
   @Post("")
@@ -59,15 +61,6 @@ export class ProjectGroupController {
     return this.projectGroup.update(id, project, bearerToken);
   }
 
-  @Get(":id")
-  @ApiResponse({
-    status: 200,
-    description: "The project group has been successfully fetched.",
-  })
-  async findOne(@Param("id") id: string) {
-    return this.projectGroup.findOne(id);
-  }
-
   @Get("/myGroups")
   @ApiBearerAuth()
   @ApiResponse({
@@ -79,12 +72,34 @@ export class ProjectGroupController {
     const authToken = req.headers.authorization;
     const user = await this.studentService.getCurrentUser(authToken);
 
-    if (user.role !== "student") {
+    if (user.role !== "STUDENT") {
       throw new ForbiddenException("Only students can access this route");
     }
 
     // 2. Find project groups for this student
     return await this.projectGroup.findGroupsByStudentId(user.user_id);
+  }
+
+  @Get(":id/report-definition")
+  @ApiResponse({
+    status: 200,
+    description: "The report definition has been successfully fetched.",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Project not found or no report definition exists for this project",
+  })
+  async getReportDefinition(@Param("id") projectId: string) {
+    return this.reportDefinitionService.findByProjectId(projectId);
+  }
+
+  @Get(":id")
+  @ApiResponse({
+    status: 200,
+    description: "The project group has been successfully fetched.",
+  })
+  async findOne(@Param("id") id: string) {
+    return this.projectGroup.findOne(id);
   }
 
   @Get("")
