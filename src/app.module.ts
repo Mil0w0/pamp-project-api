@@ -17,6 +17,11 @@ import { ProjectGroupController } from "./projectGroup/projectGroup.controller";
 import { Step } from "./steps/step.entity";
 import { StepController } from "./steps/step.controller";
 import { StepService } from "./steps/step.service";
+import {ReportDefinition} from "./report/reportDefinition.entiy";
+import {ReportDefinitionService} from "./report/reportDefinition.service";
+import {ReportDefinitionController} from "./report/reportDefinition.controller";
+import { LiveblocksService } from "./liveblocks/liveblocks.service";
+import { LiveblocksController } from "./liveblocks/liveblocks.controller";
 
 @Module({
   imports: [
@@ -29,10 +34,10 @@ import { StepService } from "./steps/step.service";
       url:
         process.env.DATABASE_URL ||
         "postgres://postgres:postgres@localhost:5432/pamp_projects",
-      entities: [StudentBatch, Project, ProjectGroup, Step],
+      entities: [StudentBatch, Project, ProjectGroup, Step, ReportDefinition],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([StudentBatch, Project, ProjectGroup, Step]),
+    TypeOrmModule.forFeature([StudentBatch, Project, ProjectGroup, Step, ReportDefinition]),
   ],
   controllers: [
     AppController,
@@ -40,6 +45,8 @@ import { StepService } from "./steps/step.service";
     ProjectController,
     StepController,
     ProjectGroupController,
+    ReportDefinitionController,
+    LiveblocksController,
   ],
   providers: [
     AppService,
@@ -48,6 +55,8 @@ import { StepService } from "./steps/step.service";
     ProjectService,
     ProjectGroupService,
     StepService,
+    ReportDefinitionService,
+    LiveblocksService,
   ],
 })
 export class AppModule {}

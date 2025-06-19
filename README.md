@@ -8,6 +8,11 @@
     Run cp .env.exemple  .env and modify it
     Run docker-compose up --build
 
+to run the app in development mode:
+```bash
+  docker-compose -f docker-compose.dev.yml up --build
+```
+
     The app is accessible at localhost:3000/
 
 ### Database Entities:
