@@ -16,12 +16,25 @@ export class ProjectGroup {
   @Column()
   name: string;
 
+
+  @Column({
+    nullable: true,
+  })
+  reportSubmitted: boolean;
+
+  @Column({
+    nullable: true,
+  })
+  reportSubmittedDate: Date;
+
   @ManyToOne(() => Project, (project) => project.groups, {
     onDelete: "SET NULL",
   })
   @JoinColumn({ name: "projectId" })
   project: Project;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   studentsIds: string;
 }

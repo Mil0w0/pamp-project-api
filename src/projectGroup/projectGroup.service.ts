@@ -9,7 +9,7 @@ import {Repository} from "typeorm";
 import {ProjectGroup} from "./projectGroup.entity";
 import {DEFAULT_ELEMENT_BY_PAGE} from "../constants";
 import {CreateBatchGroupsDto} from "./dto/create-project-dto";
-import {ListProjectsDto} from "./dto/list-projects-dto";
+import {ListProjectGroupsDto} from "./dto/list-projects-dto";
 
 import {Project} from "../project/project.entity";
 import {StudentService} from "../studentBatch/students.service";
@@ -47,7 +47,7 @@ export class ProjectGroupService {
                 );
             }
             try {
-                createdGroups.push(await this.projectGroupRepository.save({...group, project: project }));
+                createdGroups.push(await this.projectGroupRepository.save({...group, project: project}));
             } catch (error) {
                 throw new InternalServerErrorException(
                     error.message || "An error occurred while creating the projectGroup",
@@ -78,11 +78,12 @@ export class ProjectGroupService {
      * @param page : number
      * Get all student batches with pagination
      */
-    async findAll({limit, page}: ListProjectsDto) {
+    async findAll({limit, page, projectId}: ListProjectGroupsDto) {
         try {
             return await this.projectGroupRepository.find({
                 take: limit || DEFAULT_ELEMENT_BY_PAGE,
                 skip: (page - 1) * limit || 0,
+                where: projectId ? {project: {id: projectId}} : undefined,
                 relations: ["project"],
             });
         } catch (error) {

@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from "class-validator";
+import { IsOptional } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 export class PatchGroupProjectDto {
   @ApiProperty({
@@ -10,7 +10,7 @@ export class PatchGroupProjectDto {
 
 
   @ApiProperty({
-    example: "['aaaa-uuehfi-eoihfeio-eee', 'abaa-uuehfi-eoihfeio-eee ]",
+    example: 'aaaa-uuehfi-eoihfeio-eee, abaa-uuehfi-eoihfeio-eee',
     required: false,
   })
   @IsOptional()
