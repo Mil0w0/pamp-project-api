@@ -32,7 +32,7 @@ export class ProjectGroupService {
     if (!project) {
       throw new NotFoundException("Project not found");
     }
-    let createdGroups: ProjectGroup[] = [];
+    const createdGroups: ProjectGroup[] = [];
     for (const group of projectGroups.groups) {
       const otherProjectGroup = await this.projectGroupRepository.findOneBy({
         name: group.name,

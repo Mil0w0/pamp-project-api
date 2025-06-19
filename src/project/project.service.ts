@@ -16,10 +16,7 @@ import {
 } from "./dto/update-project.dto";
 import { StudentBatch } from "../studentBatch/studentBatch.entity";
 import { ProjectGroupService } from "../projectGroup/projectGroup.service";
-import {
-  CreateBatchGroupsDto,
-  CreateProjectGroupDto,
-} from "../projectGroup/dto/create-project-dto";
+import { CreateProjectGroupDto } from "../projectGroup/dto/create-project-dto";
 
 @Injectable()
 export class ProjectService {
@@ -124,7 +121,7 @@ export class ProjectService {
         //else create empty groups that will be filled later
         else {
           //Create X groups skeleton with a default name
-          let groupBatchDTo: CreateProjectGroupDto[] = [];
+          const groupBatchDTo: CreateProjectGroupDto[] = [];
           for (let i = 0; i < formattedDto.maxGroups; i++) {
             groupBatchDTo.push({
               name: `Group ${i + 1}`,
@@ -194,7 +191,7 @@ export class ProjectService {
       );
     }
     //Make groups with criteria
-    let groupBatchDTo: CreateProjectGroupDto[] = [];
+    const groupBatchDTo: CreateProjectGroupDto[] = [];
     let count = 0;
     for (let i = 0; i < fullGroups; i++) {
       console.log(i);
