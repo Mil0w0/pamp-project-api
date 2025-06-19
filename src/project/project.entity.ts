@@ -1,11 +1,17 @@
-import {Entity, Column, ManyToOne, JoinColumn, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {
+  Entity,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from "typeorm";
 import { StudentBatch } from "../studentBatch/studentBatch.entity";
-import {ProjectGroup} from "../projectGroup/projectGroup.entity";
+import { ProjectGroup } from "../projectGroup/projectGroup.entity";
 
 @Entity()
 export class Project {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ default: false })
@@ -23,19 +29,19 @@ export class Project {
   @Column("text")
   description: string;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   maxGroups: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   maxPerGroup: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   minPerGroup: number;
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   groupsCreator: "TEACHER" | "STUDENT" | "RANDOM"; //defines who can make groups
 
-  @Column({nullable: true})
+  @Column({ nullable: true })
   creationGroupDeadLineDate: Date; //if groupsCreator are students, give a deadline after which groups will be filled it randomly
 
   @ManyToOne(() => StudentBatch, (batch) => batch.projects, {
@@ -45,5 +51,5 @@ export class Project {
   studentBatch: StudentBatch;
 
   @OneToMany(() => ProjectGroup, (groups) => groups.project)
-  groups: ProjectGroup[]
+  groups: ProjectGroup[];
 }

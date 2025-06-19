@@ -20,6 +20,4 @@ export class ListProjectGroupsDto {
     required: false,
   })
   projectId: string;
-
-
 }

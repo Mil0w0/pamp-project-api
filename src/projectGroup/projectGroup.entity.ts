@@ -1,10 +1,16 @@
-import {Entity, Column, PrimaryColumn, ManyToOne, JoinColumn, PrimaryGeneratedColumn} from "typeorm";
-import {Project} from "../project/project.entity";
+import {
+  Entity,
+  Column,
+  PrimaryColumn,
+  ManyToOne,
+  JoinColumn,
+  PrimaryGeneratedColumn,
+} from "typeorm";
+import { Project } from "../project/project.entity";
 
 @Entity()
 export class ProjectGroup {
-
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({
@@ -15,7 +21,6 @@ export class ProjectGroup {
 
   @Column()
   name: string;
-
 
   @Column({
     nullable: true,
