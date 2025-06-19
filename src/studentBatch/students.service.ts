@@ -96,7 +96,6 @@ export class StudentService {
     }
   }
 
-
   /**
    * Check if student has an account already thx to their id
    * @param id
@@ -106,14 +105,11 @@ export class StudentService {
     try {
       const { status } = await firstValueFrom(
         this.httpService
-          .get<GetStudent>(
-            `${this.USER_SERVICE_URL}/users/${id}`,
-            {
-              headers: {
-                Authorization: token,
-              },
+          .get<GetStudent>(`${this.USER_SERVICE_URL}/users/${id}`, {
+            headers: {
+              Authorization: token,
             },
-          )
+          })
           .pipe(
             catchError((error: AxiosError) => {
               if (error.response?.status === 404) {

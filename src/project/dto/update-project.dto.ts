@@ -35,50 +35,46 @@ export class PatchProjectDto {
     required: false,
   })
   @IsOptional()
-  maxGroups?: number
-
+  maxGroups?: number;
 
   @ApiProperty({
     example: 5,
     required: false,
   })
   @IsOptional()
-  maxPerGroup?: number
-
+  maxPerGroup?: number;
 
   @ApiProperty({
     example: 1,
     required: false,
   })
   @IsOptional()
-  minPerGroup?: number
-
+  minPerGroup?: number;
 
   @ApiProperty({
     example: "TEACHER",
     required: false,
   })
   @IsOptional()
-  groupsCreator?: 'TEACHER' | 'STUDENT' | 'RANDOM'
-
+  groupsCreator?: "TEACHER" | "STUDENT" | "RANDOM";
 
   @ApiProperty({
     example: "12/07/2025",
     required: false,
   })
   @IsOptional()
-  creationGroupDeadLineDate?: string
+  creationGroupDeadLineDate?: string;
 }
 
 export type UpdatedProjectPatchDto = {
   isPublished?: boolean;
   name?: string;
   description?: string;
-  maxGroups?: number
-  maxPerGroup?: number
-  minPerGroup?: number
-  groupsCreator?: 'TEACHER' | 'STUDENT' | 'RANDOM'
-  creationGroupDeadLineDate?: string
+  maxGroups?: number;
+  maxPerGroup?: number;
+  minPerGroup?: number;
+  groupsCreator?: "TEACHER" | "STUDENT" | "RANDOM";
+  creationGroupDeadLineDate?: string;
   studentBatch?: StudentBatch;
   studentBatchId?: string;
 };

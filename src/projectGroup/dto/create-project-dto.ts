@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-import {IsNotEmpty, IsOptional, IsString} from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateProjectGroupDto {
   @ApiProperty({
@@ -22,11 +22,11 @@ export class CreateProjectGroupDto {
 export class CreateBatchGroupsDto {
   @ApiProperty()
   @IsNotEmpty()
-  groups: CreateProjectGroupDto[]
+  groups: CreateProjectGroupDto[];
 
   @ApiProperty({
     example: "bbbb-rjihrf-fziohr",
-    required: true
+    required: true,
   })
   @IsString()
   @IsNotEmpty()

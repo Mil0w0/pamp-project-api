@@ -8,9 +8,8 @@ export class PatchGroupProjectDto {
   @IsOptional()
   name?: string;
 
-
   @ApiProperty({
-    example: 'aaaa-uuehfi-eoihfeio-eee, abaa-uuehfi-eoihfeio-eee',
+    example: "aaaa-uuehfi-eoihfeio-eee, abaa-uuehfi-eoihfeio-eee",
     required: false,
   })
   @IsOptional()
