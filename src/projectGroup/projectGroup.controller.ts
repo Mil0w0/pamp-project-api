@@ -13,9 +13,8 @@ import {
 import {ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
 import {ProjectGroupService} from "./projectGroup.service";
 import {PatchGroupProjectDto} from "./dto/update-project.dto";
-import {ListProjectsDto} from "./dto/list-projects-dto";
-import {CreateBatchGroupsDto, CreateProjectGroupDto} from "./dto/create-project-dto";
-import {PatchProjectDto} from "../project/dto/update-project.dto";
+import {ListProjectGroupsDto} from "./dto/list-projects-dto";
+import {CreateBatchGroupsDto} from "./dto/create-project-dto";
 
 @ApiTags("ProjectGroups")
 @Controller("projectGroups")
@@ -33,7 +32,7 @@ export class ProjectGroupController {
         description: "Bad request",
     })
     @ApiBody({
-        type: CreateProjectGroupDto,
+        type: CreateBatchGroupsDto,
         description: "Json structure for create project group object",
     })
     async create(@Body() dto: CreateBatchGroupsDto) {
@@ -46,8 +45,7 @@ export class ProjectGroupController {
         description: "Json structure for update project group object",
     })
     @UsePipes(new ValidationPipe({forbidNonWhitelisted: true, whitelist: true}))
-
-    async patch(@Body() project: PatchProjectDto, @Param("id") id: string, @Req() req) {
+    async patch(@Body() project: PatchGroupProjectDto, @Param("id") id: string, @Req() req) {
         const bearerToken = req.headers["authorization"];
         return this.projectGroup.update(id, project, bearerToken);
     }
@@ -66,7 +64,7 @@ export class ProjectGroupController {
         status: 200,
         description: "The project groups have been successfully fetched.",
     })
-    async findAll(@Query() params: ListProjectsDto) {
+    async findAll(@Query() params: ListProjectGroupsDto) {
         return this.projectGroup.findAll(params);
     }
 

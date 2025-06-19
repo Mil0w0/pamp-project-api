@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsPositive } from "class-validator";
 
-export class ListProjectsDto {
+export class ListProjectGroupsDto {
   @ApiProperty({
     example: 10,
     required: false,
@@ -14,4 +14,12 @@ export class ListProjectsDto {
     required: false,
   })
   page: number;
+
+  @ApiProperty({
+    example: "aaaa-zzfkd-deiffrzlofr",
+    required: false,
+  })
+  projectId: string;
+
+
 }
