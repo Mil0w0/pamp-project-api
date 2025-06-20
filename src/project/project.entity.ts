@@ -8,6 +8,7 @@ import {
 } from "typeorm";
 import { StudentBatch } from "../studentBatch/studentBatch.entity";
 import { ProjectGroup } from "../projectGroup/projectGroup.entity";
+import { Step } from "../steps/step.entity";
 
 @Entity()
 export class Project {
@@ -52,4 +53,7 @@ export class Project {
 
   @OneToMany(() => ProjectGroup, (groups) => groups.project)
   groups: ProjectGroup[];
+
+  @OneToMany(() => Step, (step) => step.project)
+  steps: Step[];
 }
