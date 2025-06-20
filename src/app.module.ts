@@ -14,6 +14,9 @@ import { ProjectService } from "./project/project.service";
 import { ProjectGroup } from "./projectGroup/projectGroup.entity";
 import { ProjectGroupService } from "./projectGroup/projectGroup.service";
 import { ProjectGroupController } from "./projectGroup/projectGroup.controller";
+import { Step } from "./steps/step.entity";
+import { StepController } from "./steps/step.controller";
+import { StepService } from "./steps/step.service";
 
 @Module({
   imports: [
@@ -26,15 +29,16 @@ import { ProjectGroupController } from "./projectGroup/projectGroup.controller";
       url:
         process.env.DATABASE_URL ||
         "postgres://postgres:postgres@localhost:5432/pamp_projects",
-      entities: [StudentBatch, Project, ProjectGroup],
+      entities: [StudentBatch, Project, ProjectGroup, Step],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([StudentBatch, Project, ProjectGroup]),
+    TypeOrmModule.forFeature([StudentBatch, Project, ProjectGroup, Step]),
   ],
   controllers: [
     AppController,
     StudentBatchesController,
     ProjectController,
+    StepController,
     ProjectGroupController,
   ],
   providers: [
@@ -43,6 +47,7 @@ import { ProjectGroupController } from "./projectGroup/projectGroup.controller";
     StudentService,
     ProjectService,
     ProjectGroupService,
+    StepService,
   ],
 })
 export class AppModule {}
