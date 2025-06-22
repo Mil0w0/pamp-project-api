@@ -6,7 +6,6 @@ import {
   Param,
   Post,
   Query,
-  Req,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
@@ -29,7 +28,6 @@ export class StepController {
   async insertAndUpdate(
     @Body() stepDTO: CreateStepDTO[],
     @Param("projectId") projectId: string,
-    @Req() req,
   ) {
     console.log(stepDTO);
     return this.stepService.createBatch(projectId, stepDTO);
