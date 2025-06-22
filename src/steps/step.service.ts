@@ -33,6 +33,7 @@ export class StepService {
     stepsData: CreateStepDTO[],
     bearerToken: string,
   ) {
+    console.log("Got there")
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
       relations: ["steps"],
@@ -46,10 +47,11 @@ export class StepService {
       .filter((step) => !!step.id) // Only consider steps with an ID
       .map((step) => step.id);
 
+    console.log(incomingStepIds);
     const stepsToDelete = project.steps.filter(
       (existingStep) => !incomingStepIds.includes(existingStep.id),
     );
-
+    console.log(stepsToDelete);
     if (stepsToDelete.length > 0) {
       await this.stepRepository.remove(stepsToDelete);
     }
@@ -57,7 +59,19 @@ export class StepService {
     //CREATE OR UPDATE THE OTHERS STEPS
     try {
       for (const step of stepsData) {
-        await this.stepRepository.save(step);
+        if (step.id) {
+          // Update existing step
+          console.log("update")
+          await this.stepRepository.update(step.id, step);
+        } else {
+          // Create new step
+          console.log("create")
+          const newStep = this.stepRepository.create({
+            ...step,
+            project,
+          });
+          await this.stepRepository.save(newStep);
+        }
       }
     } catch (error) {
       throw new InternalServerErrorException(

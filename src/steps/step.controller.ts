@@ -32,6 +32,7 @@ export class StepController {
     @Param("projectId") projectId: string,
     @Req() req,
   ) {
+    console.log(stepDTO);
     const bearerToken = req.headers["authorization"];
     return this.stepService.createBatch(projectId, stepDTO, bearerToken);
   }
