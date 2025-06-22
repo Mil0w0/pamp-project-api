@@ -50,7 +50,7 @@ export class ProjectService {
     try {
       const project = await this.projectsRepository.findOne({
         where: { id },
-        relations: ["studentBatch", "groups"],
+        relations: ["studentBatch", "groups", "steps"],
       });
       if (!project) {
         throw new NotFoundException(`Project '${id}' not found`);
@@ -72,7 +72,7 @@ export class ProjectService {
       return await this.projectsRepository.find({
         take: limit || DEFAULT_ELEMENT_BY_PAGE,
         skip: (page - 1) * limit || 0,
-        relations: ["studentBatch", "groups"],
+        relations: ["studentBatch", "groups", "steps"],
       });
     } catch (error) {
       throw new InternalServerErrorException(`Oospie doopsie. ${error}`);
@@ -137,7 +137,7 @@ export class ProjectService {
       // Finally return the updated object
       return await this.projectsRepository.findOne({
         where: { id },
-        relations: ["studentBatch", "groups"],
+        relations: ["studentBatch", "groups", "steps"],
       });
     } catch (error) {
       console.log(error);
@@ -157,7 +157,7 @@ export class ProjectService {
   async copy(projectId: string) {
     const originalProject = await this.projectsRepository.findOne({
       where: { id: projectId },
-      relations: ["studentBatch"],
+      relations: ["studentBatch", "steps"],
     });
     const { id, createdAt, groups, studentBatch, ...rest } = originalProject;
     console.log(id, createdAt, groups, studentBatch);
