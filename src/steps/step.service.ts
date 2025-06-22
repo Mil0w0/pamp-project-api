@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -9,7 +8,6 @@ import { Repository } from "typeorm";
 import { Step } from "./step.entity";
 import { DEFAULT_ELEMENT_BY_PAGE } from "../constants";
 import { CreateStepDTO } from "./dto/create-step-dto";
-import { ListProjectGroupsDto } from "./dto/list-projects-dto";
 
 import { Project } from "../project/project.entity";
 import { ListProjectsDto } from "../project/dto/list-projects-dto";
@@ -26,14 +24,9 @@ export class StepService {
    * Delete all project steps that aren't kept and create the new steps given then update the lasts
    * @param stepsData
    * @param projectId
-   * @param bearerToken
    */
-  async createBatch(
-    projectId: string,
-    stepsData: CreateStepDTO[],
-    bearerToken: string,
-  ) {
-    console.log("Got there")
+  async createBatch(projectId: string, stepsData: CreateStepDTO[]) {
+    console.log("Got there");
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
       relations: ["steps"],
@@ -61,11 +54,11 @@ export class StepService {
       for (const step of stepsData) {
         if (step.id) {
           // Update existing step
-          console.log("update")
+
           await this.stepRepository.update(step.id, step);
         } else {
           // Create new step
-          console.log("create")
+
           const newStep = this.stepRepository.create({
             ...step,
             project,
