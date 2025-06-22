@@ -1,7 +1,8 @@
 import {
   Body,
   Controller,
-  Delete, ForbiddenException,
+  Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -11,18 +12,20 @@ import {
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
-import {ApiBearerAuth, ApiBody, ApiResponse, ApiTags} from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { ProjectGroupService } from "./projectGroup.service";
 import { PatchGroupProjectDto } from "./dto/update-project.dto";
 import { ListProjectGroupsDto } from "./dto/list-projects-dto";
 import { CreateBatchGroupsDto } from "./dto/create-project-dto";
-import {StudentService} from "../studentBatch/students.service";
+import { StudentService } from "../studentBatch/students.service";
 
 @ApiTags("ProjectGroups")
 @Controller("projectGroups")
 export class ProjectGroupController {
-  constructor(private readonly projectGroup: ProjectGroupService,
-              private readonly studentService: StudentService,) {}
+  constructor(
+    private readonly projectGroup: ProjectGroupService,
+    private readonly studentService: StudentService,
+  ) {}
 
   @Post("")
   @ApiResponse({
@@ -69,19 +72,19 @@ export class ProjectGroupController {
   @ApiBearerAuth()
   @ApiResponse({
     status: 200,
-    description: "The project groups for the authenticated user if they are a student.",
+    description:
+      "The project groups for the authenticated user if they are a student.",
   })
   async findInWhatGroupsIam(@Req() req) {
     const authToken = req.headers.authorization;
     const user = await this.studentService.getCurrentUser(authToken);
 
-    if (user.role !== 'student') {
-      throw new ForbiddenException('Only students can access this route');
+    if (user.role !== "student") {
+      throw new ForbiddenException("Only students can access this route");
     }
 
     // 2. Find project groups for this student
     return await this.projectGroup.findGroupsByStudentId(user.user_id);
-
   }
 
   @Get("")

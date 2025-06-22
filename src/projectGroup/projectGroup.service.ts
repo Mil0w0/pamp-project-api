@@ -145,15 +145,15 @@ export class ProjectGroupService {
     return projectGroup;
   }
 
-  async findGroupsByStudentId(id : string): Promise<ProjectGroup[]> {
+  async findGroupsByStudentId(id: string): Promise<ProjectGroup[]> {
     const groups = await this.projectGroupRepository.find({
-      relations: ['project'],
+      relations: ["project"],
     });
 
     //Find groups where students Ids includes our student id
-    return groups.filter(group => {
+    return groups.filter((group) => {
       if (!group.studentsIds) return false;
-      const ids = group.studentsIds.split(',').map(id => id.trim());
+      const ids = group.studentsIds.split(",").map((id) => id.trim());
       return ids.includes(id);
     });
   }

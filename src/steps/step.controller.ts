@@ -5,7 +5,6 @@ import {
   Get,
   Param,
   Post,
-  Put,
   Query,
   Req,
   UsePipes,
@@ -33,8 +32,7 @@ export class StepController {
     @Req() req,
   ) {
     console.log(stepDTO);
-    const bearerToken = req.headers["authorization"];
-    return this.stepService.createBatch(projectId, stepDTO, bearerToken);
+    return this.stepService.createBatch(projectId, stepDTO);
   }
 
   @Get(":id")
