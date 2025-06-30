@@ -17,9 +17,9 @@ import { ProjectGroupController } from "./projectGroup/projectGroup.controller";
 import { Step } from "./steps/step.entity";
 import { StepController } from "./steps/step.controller";
 import { StepService } from "./steps/step.service";
-import {ReportDefinition} from "./report/reportDefinition.entiy";
-import {ReportDefinitionService} from "./report/reportDefinition.service";
-import {ReportDefinitionController} from "./report/reportDefinition.controller";
+import { ReportDefinition } from "./report/reportDefinition.entiy";
+import { ReportDefinitionService } from "./report/reportDefinition.service";
+import { ReportDefinitionController } from "./report/reportDefinition.controller";
 import { LiveblocksService } from "./liveblocks/liveblocks.service";
 import { LiveblocksController } from "./liveblocks/liveblocks.controller";
 
@@ -37,7 +37,13 @@ import { LiveblocksController } from "./liveblocks/liveblocks.controller";
       entities: [StudentBatch, Project, ProjectGroup, Step, ReportDefinition],
       synchronize: true,
     }),
-    TypeOrmModule.forFeature([StudentBatch, Project, ProjectGroup, Step, ReportDefinition]),
+    TypeOrmModule.forFeature([
+      StudentBatch,
+      Project,
+      ProjectGroup,
+      Step,
+      ReportDefinition,
+    ]),
   ],
   controllers: [
     AppController,

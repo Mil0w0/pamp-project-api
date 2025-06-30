@@ -1,30 +1,46 @@
-import { registerDecorator, ValidationOptions, ValidationArguments } from 'class-validator';
+import {
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+} from "class-validator";
 
 export function IsValidReportDefinition(validationOptions?: ValidationOptions) {
-  return function (object: Object, propertyName: string) {
+  return function (object: object, propertyName: string) {
     registerDecorator({
-      name: 'isValidReportDefinition',
+      name: "isValidReportDefinition",
       target: object.constructor,
       propertyName: propertyName,
       options: validationOptions,
       validator: {
-        validate(value: any, args: ValidationArguments) {
-          const obj = args.object as any;
+        validate(value: unknown, args: ValidationArguments) {
+          const obj = args.object as Record<string, unknown>;
           const format = obj.format;
           const instruction = obj.instruction;
           const questions = obj.questions;
 
-          if (format === 'CLASSIC') {
+          if (format === "CLASSIC") {
             // For CLASSIC format: instruction is mandatory, questions should be null/undefined
-            if (!instruction || instruction.trim() === '') {
+            if (
+              typeof instruction !== "string" ||
+              !instruction ||
+              instruction.trim() === ""
+            ) {
               return false;
             }
-            if (questions !== null && questions !== undefined && questions !== '') {
+            if (
+              questions !== null &&
+              questions !== undefined &&
+              questions !== ""
+            ) {
               return false;
             }
-          } else if (format === 'QUESTIONNAIRE') {
+          } else if (format === "QUESTIONNAIRE") {
             // For QUESTIONNAIRE format: questions is mandatory, instruction is optional
-            if (!questions || questions.trim() === '') {
+            if (
+              typeof questions !== "string" ||
+              !questions ||
+              questions.trim() === ""
+            ) {
               return false;
             }
           }
@@ -32,25 +48,37 @@ export function IsValidReportDefinition(validationOptions?: ValidationOptions) {
           return true;
         },
         defaultMessage(args: ValidationArguments) {
-          const obj = args.object as any;
+          const obj = args.object as Record<string, unknown>;
           const format = obj.format;
-          
-          if (format === 'CLASSIC') {
-            if (!obj.instruction || obj.instruction.trim() === '') {
-              return 'For CLASSIC format, instruction field is mandatory';
+
+          if (format === "CLASSIC") {
+            if (
+              typeof obj.instruction !== "string" ||
+              !obj.instruction ||
+              obj.instruction.trim() === ""
+            ) {
+              return "For CLASSIC format, instruction field is mandatory";
             }
-            if (obj.questions !== null && obj.questions !== undefined && obj.questions !== '') {
-              return 'For CLASSIC format, questions field should be null or empty';
+            if (
+              obj.questions !== null &&
+              obj.questions !== undefined &&
+              obj.questions !== ""
+            ) {
+              return "For CLASSIC format, questions field should be null or empty";
             }
-          } else if (format === 'QUESTIONNAIRE') {
-            if (!obj.questions || obj.questions.trim() === '') {
-              return 'For QUESTIONNAIRE format, questions field is mandatory';
+          } else if (format === "QUESTIONNAIRE") {
+            if (
+              typeof obj.questions !== "string" ||
+              !obj.questions ||
+              obj.questions.trim() === ""
+            ) {
+              return "For QUESTIONNAIRE format, questions field is mandatory";
             }
           }
-          
-          return 'Invalid report definition format validation';
+
+          return "Invalid report definition format validation";
         },
       },
     });
   };
-} 
+}
