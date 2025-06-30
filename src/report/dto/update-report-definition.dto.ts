@@ -24,16 +24,19 @@ export class PatchReportDefinitionDto {
   @ApiProperty({
     example: "Updated instructions for the report...",
     required: false,
-    description: "Instructions for the report. MANDATORY for CLASSIC format, OPTIONAL for QUESTIONNAIRE format",
+    description:
+      "Instructions for the report. MANDATORY for CLASSIC format, OPTIONAL for QUESTIONNAIRE format",
   })
   @IsOptional()
   @IsString()
   instruction?: string;
 
   @ApiProperty({
-    example: '[{"id": 1, "text": "What was your biggest challenge?"}, {"id": 2, "text": "What did you learn?"}]',
+    example:
+      '[{"id": 1, "text": "What was your biggest challenge?"}, {"id": 2, "text": "What did you learn?"}]',
     required: false,
-    description: "JSON string with questions for the report. MANDATORY for QUESTIONNAIRE format, should be NULL/EMPTY for CLASSIC format",
+    description:
+      "JSON string with questions for the report. MANDATORY for QUESTIONNAIRE format, should be NULL/EMPTY for CLASSIC format",
   })
   @IsOptional()
   @IsString()
@@ -55,4 +58,4 @@ export type UpdatedReportDefinitionPatchDto = {
   questions?: string;
   project?: Project;
   projectId?: string;
-}; 
+};

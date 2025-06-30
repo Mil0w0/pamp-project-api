@@ -112,7 +112,8 @@ export class ProjectGroupController {
   })
   @ApiResponse({
     status: 404,
-    description: "Project not found or no report definition exists for this project",
+    description:
+      "Project not found or no report definition exists for this project",
   })
   async getReportDefinition(@Param("id") projectId: string) {
     return this.reportDefinitionService.findByProjectId(projectId);

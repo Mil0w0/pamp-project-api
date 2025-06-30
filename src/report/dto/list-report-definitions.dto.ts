@@ -17,4 +17,4 @@ export class ListReportDefinitionsDto {
   @IsOptional()
   @IsNumberString()
   page?: number;
-} 
+}
