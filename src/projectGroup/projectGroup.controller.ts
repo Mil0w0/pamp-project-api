@@ -46,6 +46,31 @@ export class ProjectGroupController {
     return this.projectGroup.create(dto);
   }
 
+  @Post(":id/submit-report")
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description: "The report has been successfully submitted.",
+  })
+  @ApiResponse({
+    status: 404,
+    description: "Project group not found",
+  })
+  @ApiResponse({
+    status: 403,
+    description: "Only students can submit reports",
+  })
+  async submitReport(@Param("id") groupId: string, @Req() req) {
+    const authToken = req.headers.authorization;
+    const user = await this.studentService.getCurrentUser(authToken);
+
+    if (user.role !== "STUDENT") {
+      throw new ForbiddenException("Only students can submit reports");
+    }
+
+    return this.projectGroup.submitReport(groupId, user.user_id);
+  }
+
   @Patch(":id")
   @ApiBody({
     type: PatchGroupProjectDto,
