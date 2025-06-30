@@ -161,4 +161,54 @@ export class ProjectGroupService {
             return ids.includes(id);
         });
     }
+
+    /**
+     * Submit a report for a project group
+     * @param groupId - The ID of the project group
+     * @param studentId - The ID of the student submitting the report
+     */
+    async submitReport(groupId: string, studentId: string): Promise<ProjectGroup> {
+        // Find the project group
+        const group = await this.projectGroupRepository.findOne({
+            where: { id: groupId },
+            relations: ["project"],
+        });
+
+        if (!group) {
+            throw new NotFoundException(`Project group '${groupId}' not found`);
+        }
+
+        // Check if the student is part of this group
+        if (!group.studentsIds) {
+            throw new BadRequestException("No students assigned to this group");
+        }
+
+        const studentIds = group.studentsIds.split(",").map((id) => id.trim());
+        if (!studentIds.includes(studentId)) {
+            throw new BadRequestException("You are not a member of this project group");
+        }
+
+        // Check if report is already submitted
+        if (group.reportSubmitted) {
+            throw new BadRequestException("Report has already been submitted for this group");
+        }
+
+        try {
+            // Update the group to mark report as submitted
+            await this.projectGroupRepository.update(groupId, {
+                reportSubmitted: true,
+                reportSubmittedDate: new Date(),
+            });
+
+            // Return the updated group
+            return await this.projectGroupRepository.findOne({
+                where: { id: groupId },
+                relations: ["project"],
+            });
+        } catch (error) {
+            throw new InternalServerErrorException(
+                `Failed to submit report: ${error.message}`
+            );
+        }
+    }
 }
