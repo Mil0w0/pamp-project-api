@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -11,16 +12,20 @@ import {
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
-import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StudentBatchesService } from "./studentBatches.service";
 import { CreateStudentBatchDto } from "./dto/create-student-batch-dto";
 import { ListStudentBatchesDto } from "./dto/list-student-batches.dto";
 import { PatchStudentBatchDto } from "./dto/update-student-batch.dto";
+import { StudentService } from "./students.service";
 
 @ApiTags("StudentBatches")
 @Controller("student-batches")
 export class StudentBatchesController {
-  constructor(private readonly studentBatchesService: StudentBatchesService) {}
+  constructor(
+    private readonly studentBatchesService: StudentBatchesService,
+    private readonly studentService: StudentService,
+  ) {}
 
   @Post("")
   @ApiResponse({
@@ -77,6 +82,25 @@ export class StudentBatchesController {
     const bearerToken = req.headers["authorization"];
     console.log(req.headers);
     return this.studentBatchesService.findAll(params, bearerToken);
+  }
+
+  @Get("/myStudentBatches")
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 200,
+    description:
+      "The student batches for the authenticated user if they are a student.",
+  })
+  async findInWhatBatchIAm(@Req() req) {
+    const authToken = req.headers.authorization;
+    const user = await this.studentService.getCurrentUser(authToken);
+
+    if (user.role !== "student") {
+      throw new ForbiddenException("Only students can access this route");
+    }
+
+    // 2. Find student batches for this student
+    return await this.studentBatchesService.findByStudentId(user.user_id);
   }
 
   @Delete(":id")

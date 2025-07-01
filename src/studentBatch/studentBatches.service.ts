@@ -226,4 +226,9 @@ export class StudentBatchesService {
     await this.studentBatchsRepository.delete(studentBatch.id);
     return { ...studentBatch };
   }
+
+  async findByStudentId(id: string): Promise<StudentBatch[]> {
+    const batches = await this.studentBatchsRepository.find();
+    return batches.filter((batch) => batch.students?.split(",").includes(id));
+  }
 }

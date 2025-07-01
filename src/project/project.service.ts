@@ -28,7 +28,7 @@ export class ProjectService {
     private readonly groupService: ProjectGroupService,
   ) {}
 
-  async create(project: CreateProjectDto): Promise<Project> {
+  async create(project: CreateProjectDto, teacherId: string): Promise<Project> {
     const otherProject = await this.projectsRepository.findOneBy({
       name: project.name,
     });
@@ -38,7 +38,10 @@ export class ProjectService {
       );
     }
     try {
-      return await this.projectsRepository.save(project);
+      return await this.projectsRepository.save({
+        ...project,
+        creatorId: teacherId,
+      });
     } catch (error) {
       throw new InternalServerErrorException(
         error.message || "An error occurred while creating the project",
@@ -65,15 +68,30 @@ export class ProjectService {
    *
    * @param limit : number
    * @param page : number
-   * Get all student batches with pagination
-   */
-  async findAll({ limit, page }: ListProjectsDto) {
+   * @param userId: string
+   * Get all student batches with pagination. If user is a student, return published project from the student batch of the user   */
+  async findAll({ limit, page, userId, batchId }: ListProjectsDto) {
     try {
-      return await this.projectsRepository.find({
-        take: limit || DEFAULT_ELEMENT_BY_PAGE,
-        skip: (page - 1) * limit || 0,
-        relations: ["studentBatch", "groups", "steps"],
+      const batch = await this.studentBatchRepository.findOneBy({
+        id: batchId,
       });
+
+      if (userId && batchId) {
+        return await this.projectsRepository.find({
+          take: limit || DEFAULT_ELEMENT_BY_PAGE,
+          skip: (page - 1) * limit || 0,
+          where: { studentBatch: { id: batchId }, isPublished: true },
+          relations: ["studentBatch", "groups", "steps"],
+        });
+      } else {
+        //Todo: Enrich answer with creatorID info
+        return await this.projectsRepository.find({
+          take: limit || DEFAULT_ELEMENT_BY_PAGE,
+          skip: (page - 1) * limit || 0,
+          where: { creatorId: userId },
+          relations: ["studentBatch", "groups", "steps"],
+        });
+      }
     } catch (error) {
       throw new InternalServerErrorException(`Oospie doopsie. ${error}`);
     }

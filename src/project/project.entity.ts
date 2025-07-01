@@ -29,6 +29,11 @@ export class Project {
   @Column()
   name: string;
 
+  @Column({
+    nullable: true,
+  })
+  creatorId: string;
+
   @Column("text")
   description: string;
 
