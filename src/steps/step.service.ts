@@ -10,7 +10,8 @@ import { DEFAULT_ELEMENT_BY_PAGE } from "../constants";
 import { CreateStepDTO } from "./dto/create-step-dto";
 
 import { Project } from "../project/project.entity";
-import { ListProjectsDto } from "../project/dto/list-projects-dto";
+import { ListStepDto } from "./dto/list-projects-dto";
+
 @Injectable()
 export class StepService {
   constructor(
@@ -99,7 +100,7 @@ export class StepService {
    * @param projectId : string
    * Get all steps with pagination
    */
-  async findAll({ limit, page }: ListProjectsDto, projectId: string) {
+  async findAll({ limit, page }: ListStepDto, projectId: string) {
     try {
       return await this.stepRepository.find({
         take: limit || DEFAULT_ELEMENT_BY_PAGE,

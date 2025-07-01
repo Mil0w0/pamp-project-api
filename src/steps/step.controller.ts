@@ -11,7 +11,7 @@ import {
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StepService } from "./step.service";
-import { ListProjectGroupsDto } from "./dto/list-projects-dto";
+import { ListStepDto } from "./dto/list-projects-dto";
 import { CreateStepDTO } from "./dto/create-step-dto";
 
 @ApiTags("Steps")
@@ -49,7 +49,7 @@ export class StepController {
   })
   async findAll(
     @Param("projectId") projectId: string,
-    @Query() params: ListProjectGroupsDto,
+    @Query() params: ListStepDto,
   ) {
     return this.stepService.findAll(params, projectId);
   }

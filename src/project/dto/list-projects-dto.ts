@@ -14,4 +14,16 @@ export class ListProjectsDto {
     required: false,
   })
   page: number;
+
+  @ApiProperty({
+    example: "aaad-frjgri-qrihgqur",
+    required: false,
+  })
+  userId: string;
+
+  @ApiProperty({
+    example: "alad-frjgri-qrihgqur",
+    required: false,
+  })
+  batchId: string;
 }

@@ -8,6 +8,8 @@ import {
   Post,
   Put,
   Query,
+  Req,
+  UnauthorizedException,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
@@ -18,6 +20,7 @@ import { CreateProjectDto } from "./dto/create-project-dto";
 import { ListProjectsDto } from "./dto/list-projects-dto";
 import { ReportDefinitionService } from "../report/reportDefinition.service";
 import { UpsertReportDefinitionDto } from "../report/dto/upsert-report-definition.dto";
+import { StudentService } from "../studentBatch/students.service";
 
 @ApiTags("Projects")
 @Controller("projects")
@@ -25,6 +28,7 @@ export class ProjectController {
   constructor(
     private readonly projectsService: ProjectService,
     private readonly reportDefinitionService: ReportDefinitionService,
+    private readonly studentService: StudentService,
   ) {}
 
   @Post("")
@@ -40,8 +44,14 @@ export class ProjectController {
     type: CreateProjectDto,
     description: "Json structure for create project object",
   })
-  async create(@Body() project: CreateProjectDto) {
-    return this.projectsService.create(project);
+  async create(@Body() project: CreateProjectDto, @Req() req: Request) {
+    const user = await this.studentService.getCurrentUser(
+      req.headers["authorization"],
+    );
+    if (user.role === "STUDENT") {
+      throw new UnauthorizedException("Only teacher can create a project.");
+    }
+    return this.projectsService.create(project, user.user_id);
   }
 
   @Patch(":id")
