@@ -102,7 +102,7 @@ export class ProjectService {
                 .leftJoinAndSelect('project.studentBatch', 'batch')
                 .leftJoinAndSelect('project.groups', 'groups')
                 .leftJoinAndSelect('project.steps', 'steps')
-                .where('batch.students LIKE :studentId', { studentId: `%${userId}%` })
+                .where('batch.students LIKE :studentId', {studentId: `%${userId}%`})
                 .andWhere('project.isPublished = true')
                 .getMany();
 
@@ -111,6 +111,7 @@ export class ProjectService {
             throw new InternalServerErrorException(`Could not fetch student projects: ${error}`);
         }
     }
+
     /**
      *
      * @param fielsToUpdate : PatchStudentBatchDto
@@ -135,36 +136,37 @@ export class ProjectService {
             //Save
             await this.projectsRepository.update(id, formattedDto);
 
-            //FIXME: this can be updated some case are wrong
             //CREATE RANDOM GROUPS IF CREATOR IS SYSTEM
-            if (formattedDto.maxGroups) {
-                if (formattedDto.groupsCreator === "RANDOM") {
-                    try {
-                        await this.createRandomGroups(
-                            formattedDto.maxGroups,
-                            formattedDto.maxPerGroup,
-                            formattedDto.minPerGroup,
-                            id,
-                        );
-                    } catch (error) {
-                        console.log(error);
-                    }
-                }
-                //else create empty groups that will be filled later
-                else {
-                    //Create X groups skeleton with a default name
-                    const groupBatchDTo: CreateProjectGroupDto[] = [];
-                    for (let i = 0; i < formattedDto.maxGroups; i++) {
-                        groupBatchDTo.push({
-                            name: `Group ${i + 1}`,
-                        });
-                    }
-                    await this.groupService.create({
-                        groups: groupBatchDTo,
-                        projectId: id,
-                    });
+            if (formattedDto.groupsCreator === "RANDOM") {
+                try {
+                    await this.createRandomGroups(
+                        formattedDto.maxPerGroup,
+                        formattedDto.minPerGroup,
+                        id,
+                    );
+                } catch (error) {
+                    console.log(error);
                 }
             }
+            //else create empty groups that will be filled later
+            else {
+
+                const project = await this.findOne(id);
+                //Get all students in the student batch of the project
+                const allStudents = project.studentBatch.students.split(",");
+                const groupBatchDTo: CreateProjectGroupDto[] = [];
+                //Create X groups skeleton with a default name
+                for (let i = 0; i < Math.ceil(allStudents.length / formattedDto.maxPerGroup); i++) {
+                    groupBatchDTo.push({
+                        name: `Group ${i + 1}`,
+                    });
+                }
+                await this.groupService.create({
+                    groups: groupBatchDTo,
+                    projectId: id,
+                });
+            }
+
 
             // Finally return the updated object
             return await this.projectsRepository.findOne({
@@ -203,56 +205,57 @@ export class ProjectService {
     }
 
     async createRandomGroups(
-        maxGroups: number,
         maxStudents: number,
         minStudents: number,
         projectId: string,
     ) {
-        //Find current project :
+        //Find current project
         const project = await this.findOne(projectId);
 
         //Get all students in the student batch of the project
         const allStudents = project.studentBatch.students.split(",");
-
-        const fullGroups = Math.floor(allStudents.length / maxStudents);
-        const remainingStudents = allStudents.length % maxStudents;
-
-        //Check if criteria are respected
-        if (fullGroups + (remainingStudents > 0 ? 1 : 0) > maxGroups) {
-            throw new BadRequestException(
-                `Max groups and max student per group aren't compatible with the number of students`,
-            );
+        if (allStudents.length < minStudents) {
+            throw new Error('Not enough students to form even one group.');
         }
-        //Make groups with criteria
-        const groupBatchDTo: CreateProjectGroupDto[] = [];
+        // Sort students randomly
+        const randomStudentsOrder = allStudents.sort(() => Math.random() - 0.45);
+
+        const groups: CreateProjectGroupDto[] = [];
+        const isFixedGroupSize = maxStudents === minStudents;
         let count = 0;
-        for (let i = 0; i < fullGroups; i++) {
-            console.log(i);
-            const studentsIdsGroup = allStudents.slice(count, count + maxStudents);
-            groupBatchDTo.push({
-                name: `Group ${i + 1}`,
-                studentsIds: studentsIdsGroup.join(","),
+
+        while (count < randomStudentsOrder.length) {
+            const remaining = randomStudentsOrder.length - count;
+
+            let groupSize = maxStudents;
+
+            // (min == max)
+            if (isFixedGroupSize) {
+                if (remaining < minStudents) {
+                    // Force assign smaller group
+                    groupSize = remaining;
+                }
+            } else {
+                // Flexible group size: choose best-fit between min and max
+                groupSize = Math.min(maxStudents, remaining);
+                if (remaining < minStudents) {
+                    // Force assign under minStudents if it's the last group
+                    groupSize = remaining;
+                }
+            }
+
+            const groupStudents = randomStudentsOrder.slice(count, count + groupSize);
+
+            groups.push({
+                name: `Group ${groups.length + 1}`,
+                studentsIds: groupStudents.join(','),
             });
-            count += maxStudents;
-        }
-        //If there are students left without a full group create one
-        //Fixme : check if minStudents is respected
-        if (remainingStudents > 0) {
-            groupBatchDTo.push({
-                name: `Group ${fullGroups + 1}`,
-                studentsIds: allStudents.slice(count).join(","),
-            });
+            count += groupSize;
         }
 
-        while (groupBatchDTo.length < maxGroups) {
-            groupBatchDTo.push({
-                name: `Group ${groupBatchDTo.length + 1}`,
-                studentsIds: "",
-            });
-            await this.groupService.create({
-                groups: groupBatchDTo,
-                projectId: projectId,
-            });
-        }
+        await this.groupService.create({
+            groups: groups,
+            projectId: projectId,
+        });
     }
 }
