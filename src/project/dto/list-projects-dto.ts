@@ -20,10 +20,4 @@ export class ListProjectsDto {
     required: false,
   })
   userId: string;
-
-  @ApiProperty({
-    example: "alad-frjgri-qrihgqur",
-    required: false,
-  })
-  batchId: string;
 }

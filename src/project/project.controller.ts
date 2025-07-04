@@ -78,8 +78,9 @@ export class ProjectController {
     status: 200,
     description: "The projects have been successfully fetched.",
   })
-  async findAll(@Query() params: ListProjectsDto) {
-    return this.projectsService.findAll(params);
+  async findAll(@Query() params: ListProjectsDto, @Req() req: Request) {
+    const token = req.headers["authorization"];
+    return this.projectsService.findAll(params, token);
   }
 
   @Delete(":id")
