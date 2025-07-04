@@ -35,13 +35,6 @@ export class PatchProjectDto {
     required: false,
   })
   @IsOptional()
-  maxGroups?: number;
-
-  @ApiProperty({
-    example: 5,
-    required: false,
-  })
-  @IsOptional()
   maxPerGroup?: number;
 
   @ApiProperty({
