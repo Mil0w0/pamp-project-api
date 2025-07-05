@@ -213,6 +213,7 @@ export class ProjectService {
     //Clone each step and associate with the new project
     const clonedSteps = steps.map((step) => {
       const { id, createdAt, ...data } = step;
+      console.log(id, createdAt);
       return this.stepRepo.create({
         ...data,
         project: clonedProject,
