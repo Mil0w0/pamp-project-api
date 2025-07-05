@@ -121,4 +121,16 @@ export class StepService {
     await this.stepRepository.delete(step.id);
     return step;
   }
+
+  async update(id: string, stepData: CreateStepDTO, token: string): Promise<Step> {
+    try {
+      await this.stepRepository.update(id, stepData);
+      return await this.stepRepository.findOne({
+        where: { id },
+        relations: ["project"],
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
 }
