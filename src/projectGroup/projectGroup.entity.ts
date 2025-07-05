@@ -32,7 +32,7 @@ export class ProjectGroup {
   reportSubmittedDate: Date;
 
   @ManyToOne(() => Project, (project) => project.groups, {
-    onDelete: "SET NULL",
+    onDelete: "CASCADE",
   })
   @JoinColumn({ name: "projectId" })
   project: Project;

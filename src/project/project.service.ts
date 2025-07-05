@@ -18,6 +18,7 @@ import { StudentBatch } from "../studentBatch/studentBatch.entity";
 import { ProjectGroupService } from "../projectGroup/projectGroup.service";
 import { CreateProjectGroupDto } from "../projectGroup/dto/create-project-dto";
 import { StudentService } from "../studentBatch/students.service";
+import { Step } from "../steps/step.entity";
 
 @Injectable()
 export class ProjectService {
@@ -28,6 +29,8 @@ export class ProjectService {
     private studentBatchRepository: Repository<StudentBatch>,
     private readonly groupService: ProjectGroupService,
     private readonly studentService: StudentService,
+    @InjectRepository(Step)
+    private readonly stepRepo: Repository<Step>,
   ) {}
 
   async create(project: CreateProjectDto, teacherId: string): Promise<Project> {
@@ -196,14 +199,27 @@ export class ProjectService {
       where: { id: projectId },
       relations: ["studentBatch", "steps"],
     });
-    const { id, createdAt, groups, studentBatch, ...rest } = originalProject;
-    console.log(id, createdAt, groups, studentBatch);
+    const { id, createdAt, groups, studentBatch, steps, ...rest } =
+      originalProject;
+    console.log(id, createdAt, groups, studentBatch, steps);
     const clonedProject = this.projectsRepository.create({
       ...rest,
       name: `${originalProject.name} (Copy)`,
       isPublished: false,
+      groupsCreator: null,
     });
     await this.projectsRepository.save(clonedProject);
+
+    //Clone each step and associate with the new project
+    const clonedSteps = steps.map((step) => {
+      const { id, createdAt, ...data } = step;
+      return this.stepRepo.create({
+        ...data,
+        project: clonedProject,
+      });
+    });
+    await this.stepRepo.save(clonedSteps);
+
     return clonedProject;
   }
 
