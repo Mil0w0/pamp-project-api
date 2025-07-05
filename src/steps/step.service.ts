@@ -27,7 +27,6 @@ export class StepService {
    * @param projectId
    */
   async createBatch(projectId: string, stepsData: CreateStepDTO[]) {
-    console.log("Got there");
     const project = await this.projectsRepository.findOne({
       where: { id: projectId },
       relations: ["steps"],

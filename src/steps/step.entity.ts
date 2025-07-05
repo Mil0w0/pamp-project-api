@@ -39,13 +39,8 @@ export class Step {
   })
   submissionDeadLine: Date;
 
-  @Column({
-    nullable: true,
-  })
-  submissionId: string; //id to the submission on submissions-service (another microservice)
-
   @ManyToOne(() => Project, (project) => project.steps, {
-    onDelete: "SET NULL",
+    onDelete: "CASCADE",
   })
   @JoinColumn({ name: "projectId" })
   project: Project;
