@@ -122,7 +122,7 @@ export class StepService {
     return step;
   }
 
-  async update(id: string, stepData: CreateStepDTO, token: string): Promise<Step> {
+  async update(id: string, stepData: CreateStepDTO): Promise<Step> {
     try {
       await this.stepRepository.update(id, stepData);
       return await this.stepRepository.findOne({
