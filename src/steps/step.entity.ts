@@ -34,6 +34,9 @@ export class Step {
   @Column({ default: false })
   allowSubmittingAfterDeadLine: boolean;
 
+  @Column({ type: 'jsonb', nullable: true })
+  submissionConformityRules: any[];
+
   @Column({
     nullable: true,
   })
