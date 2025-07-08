@@ -140,38 +140,48 @@ export class ProjectService {
       //Save
       await this.projectsRepository.update(id, formattedDto);
 
-      //CREATE RANDOM GROUPS IF CREATOR IS SYSTEM
-      if (formattedDto.groupsCreator === "RANDOM") {
-        try {
-          await this.createRandomGroups(
-            formattedDto.maxPerGroup,
-            formattedDto.minPerGroup,
-            id,
-          );
-        } catch (error) {
-          console.log(error);
+      const isGroupConfigurationChanged =
+        fielsToUpdate.groupsCreator ||
+        fielsToUpdate.maxPerGroup ||
+        fielsToUpdate.minPerGroup;
+
+      if (isGroupConfigurationChanged) {
+        // delete all existing groups
+        await this.groupService.deleteAllGroupsByProjectId(id);
+
+        //CREATE RANDOM GROUPS IF CREATOR IS SYSTEM
+        if (formattedDto.groupsCreator === "RANDOM") {
+          try {
+            await this.createRandomGroups(
+              formattedDto.maxPerGroup,
+              formattedDto.minPerGroup,
+              id,
+            );
+          } catch (error) {
+            console.log(error);
+          }
         }
-      }
-      //else create empty groups that will be filled later
-      else {
-        const project = await this.findOne(id);
-        //Get all students in the student batch of the project
-        const allStudents = project.studentBatch.students.split(",");
-        const groupBatchDTo: CreateProjectGroupDto[] = [];
-        //Create X groups skeleton with a default name
-        for (
-          let i = 0;
-          i < Math.ceil(allStudents.length / formattedDto.maxPerGroup);
-          i++
-        ) {
-          groupBatchDTo.push({
-            name: `Group ${i + 1}`,
+        //else create empty groups that will be filled later
+        else {
+          const project = await this.findOne(id);
+          //Get all students in the student batch of the project
+          const allStudents = project.studentBatch.students.split(",");
+          const groupBatchDTo: CreateProjectGroupDto[] = [];
+          //Create X groups skeleton with a default name
+          for (
+            let i = 0;
+            i < Math.ceil(allStudents.length / formattedDto.minPerGroup);
+            i++
+          ) {
+            groupBatchDTo.push({
+              name: `Group ${i + 1}`,
+            });
+          }
+          await this.groupService.create({
+            groups: groupBatchDTo,
+            projectId: id,
           });
         }
-        await this.groupService.create({
-          groups: groupBatchDTo,
-          projectId: id,
-        });
       }
 
       // Finally return the updated object

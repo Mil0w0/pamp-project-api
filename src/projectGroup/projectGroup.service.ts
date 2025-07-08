@@ -222,4 +222,22 @@ export class ProjectGroupService {
       );
     }
   }
+
+  async deleteAllGroupsByProjectId(id: string) {
+    const project = await this.projectsRepository.findOneBy({ id });
+    if (!project) {
+      throw new NotFoundException("Project not found");
+    }
+
+    try {
+      const result = await this.projectGroupRepository.delete({
+        project: { id: project.id },
+      });
+      return result;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Failed to delete groups for project ${id}: ${error.message}`,
+      );
+    }
+  }
 }
