@@ -1,4 +1,4 @@
 export type ConformityRules = {
-    name: string;
-    params: Record<string, unknown>;
+  name: string;
+  params: Record<string, unknown>;
 };
