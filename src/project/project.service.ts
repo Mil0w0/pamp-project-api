@@ -239,53 +239,50 @@ export class ProjectService {
     minStudents: number,
     projectId: string,
   ) {
-    //Find current project
+    // Find current project
     const project = await this.findOne(projectId);
 
-    //Get all students in the student batch of the project
+    // Split out and shuffle students
     const allStudents = project.studentBatch.students.split(",");
-    if (allStudents.length < minStudents) {
+    const N = allStudents.length;
+    if (N < minStudents) {
       throw new Error("Not enough students to form even one group.");
     }
-    // Sort students randomly
-    const randomStudentsOrder = allStudents.sort(() => Math.random() - 0.45);
+    const randomOrder = allStudents.sort(() => Math.random() - 0.5);
+
+    // Compute how many groups we need
+    const minGroups = Math.ceil(N / maxStudents);
+    const maxGroups = Math.floor(N / minStudents);
+    if (minGroups > maxGroups) {
+      throw new Error(
+        `Cannot split ${N} students into groups of between ${minStudents} and ${maxStudents}.`,
+      );
+    }
+    const groupCount = minGroups;
+
+    // Start every group at the minimum size…
+    const sizes = Array(groupCount).fill(minStudents);
+    const extra = N - groupCount * minStudents; // how many slots above min
+    for (let i = 0; i < extra; i++) {
+      sizes[i % groupCount] += 1;
+    }
+    sizes.sort(() => Math.random() - 0.5);
 
     const groups: CreateProjectGroupDto[] = [];
-    const isFixedGroupSize = maxStudents === minStudents;
-    let count = 0;
-
-    while (count < randomStudentsOrder.length) {
-      const remaining = randomStudentsOrder.length - count;
-
-      let groupSize = maxStudents;
-
-      // (min == max)
-      if (isFixedGroupSize) {
-        if (remaining < minStudents) {
-          // Force assign smaller group
-          groupSize = remaining;
-        }
-      } else {
-        // Flexible group size: choose best-fit between min and max
-        groupSize = Math.min(maxStudents, remaining);
-        if (remaining < minStudents) {
-          // Force assign under minStudents if it's the last group
-          groupSize = remaining;
-        }
-      }
-
-      const groupStudents = randomStudentsOrder.slice(count, count + groupSize);
-
+    let offset = 0;
+    for (let i = 0; i < groupCount; i++) {
+      const size = sizes[i];
+      const chunk = randomOrder.slice(offset, offset + size);
       groups.push({
-        name: `Group ${groups.length + 1}`,
-        studentsIds: groupStudents.join(","),
+        name: `Group ${i + 1}`,
+        studentsIds: chunk.join(","),
       });
-      count += groupSize;
+      offset += size;
     }
 
     await this.groupService.create({
-      groups: groups,
-      projectId: projectId,
+      groups,
+      projectId,
     });
   }
 }
