@@ -43,7 +43,7 @@ export class StudentBatchesController {
   async create(@Body() newStudentBatch: CreateStudentBatchDto) {
     return this.studentBatchesService.create(newStudentBatch);
   }
-x
+  x;
   @Patch(":id")
   @ApiBody({
     type: PatchStudentBatchDto,
