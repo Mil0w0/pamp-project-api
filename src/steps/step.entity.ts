@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from "typeorm";
 import { Project } from "../project/project.entity";
+import {ConformityRules} from "./types";
 
 @Entity()
 export class Step {
@@ -35,7 +36,7 @@ export class Step {
   allowSubmittingAfterDeadLine: boolean;
 
   @Column({ type: 'jsonb', nullable: true })
-  submissionConformityRules: any[];
+  submissionConformityRules: ConformityRules[];
 
   @Column({
     nullable: true,
