@@ -43,7 +43,7 @@ export class StudentBatchesController {
   async create(@Body() newStudentBatch: CreateStudentBatchDto) {
     return this.studentBatchesService.create(newStudentBatch);
   }
-
+x
   @Patch(":id")
   @ApiBody({
     type: PatchStudentBatchDto,
@@ -99,7 +99,6 @@ export class StudentBatchesController {
       throw new ForbiddenException("Only students can access this route");
     }
 
-    // 2. Find student batches for this student
     return await this.studentBatchesService.findByStudentId(user.user_id);
   }
 

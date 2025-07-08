@@ -22,9 +22,9 @@ export class StudentService {
   async createStudentsAccount(
     students: CreateStudent[],
     token: string,
-  ): Promise<number> {
+  ) {
     try {
-      //Remove id from those students fixme: it's ugly but working
+      //Remove id from those students
       const newStudents = students.map((student) => {
         return {
           email: student.email,
@@ -46,14 +46,14 @@ export class StudentService {
           )
           .pipe(
             catchError((error: AxiosError) => {
-              console.log(error);
+              console.error(error);
               throw new InternalServerErrorException(
                 `Error while creating accounts: ${error}`,
               );
             }),
           ),
       );
-      return data.created_count;
+      return data.students;
     } catch (error) {
       throw new InternalServerErrorException(
         `Something went wrong while creating accounts : ${error}`,
