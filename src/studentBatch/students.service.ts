@@ -19,10 +19,7 @@ export class StudentService {
   public USER_SERVICE_URL = this.configService.get<string>("USER_SERVICE_URL");
 
   /*Returns number of students created*/
-  async createStudentsAccount(
-    students: CreateStudent[],
-    token: string,
-  ) {
+  async createStudentsAccount(students: CreateStudent[], token: string) {
     try {
       //Remove id from those students
       const newStudents = students.map((student) => {
