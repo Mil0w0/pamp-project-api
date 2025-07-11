@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
@@ -25,6 +26,8 @@ import { StudentService } from "../studentBatch/students.service";
 @ApiTags("Projects")
 @Controller("projects")
 export class ProjectController {
+  private readonly logger = new Logger(ProjectController.name);
+
   constructor(
     private readonly projectsService: ProjectService,
     private readonly reportDefinitionService: ReportDefinitionService,
@@ -45,13 +48,18 @@ export class ProjectController {
     description: "Json structure for create project object",
   })
   async create(@Body() project: CreateProjectDto, @Req() req: Request) {
+    this.logger.log(`POST /projects - Creating project: ${project.name || 'Untitled'}`);
     const user = await this.studentService.getCurrentUser(
       req.headers["authorization"],
     );
+    this.logger.log(`User authenticated: ${user.user_id} (${user.role})`);
     if (user.role === "STUDENT") {
+      this.logger.warn(`Unauthorized project creation attempt by student: ${user.user_id}`);
       throw new UnauthorizedException("Only teacher can create a project.");
     }
-    return this.projectsService.create(project, user.user_id);
+    const result = await this.projectsService.create(project, user.user_id);
+    this.logger.log(`Project created successfully with ID: ${result?.id || 'Unknown'}`);
+    return result;
   }
 
   @Patch(":id")
@@ -61,7 +69,10 @@ export class ProjectController {
   })
   @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
   async patch(@Body() project: PatchProjectDto, @Param("id") id: string) {
-    return this.projectsService.update(id, project);
+    this.logger.log(`PATCH /projects/${id} - Updating project`);
+    const result = await this.projectsService.update(id, project);
+    this.logger.log(`Project ${id} updated successfully`);
+    return result;
   }
 
   @Get(":id")
@@ -70,7 +81,10 @@ export class ProjectController {
     description: "The project has been successfully fetched.",
   })
   async findOne(@Param("id") id: string) {
-    return this.projectsService.findOne(id);
+    this.logger.log(`GET /projects/${id} - Fetching project`);
+    const result = await this.projectsService.findOne(id);
+    this.logger.log(`Project found: ${result?.name || 'Not found'}`);
+    return result;
   }
 
   @Get("")
@@ -79,8 +93,11 @@ export class ProjectController {
     description: "The projects have been successfully fetched.",
   })
   async findAll(@Query() params: ListProjectsDto, @Req() req: Request) {
+    this.logger.log(`GET /projects - Fetching projects with params: ${JSON.stringify(params)}`);
     const token = req.headers["authorization"];
-    return this.projectsService.findAll(params, token);
+    const result = await this.projectsService.findAll(params, token);
+    this.logger.log(`Found ${result.length} projects`);
+    return result;
   }
 
   @Delete(":id")
@@ -93,7 +110,10 @@ export class ProjectController {
     description: "Project not found",
   })
   async delete(@Param("id") id: string) {
-    return this.projectsService.delete(id);
+    this.logger.log(`DELETE /projects/${id} - Deleting project`);
+    const result = await this.projectsService.delete(id);
+    this.logger.log(`Project ${id} deleted successfully`);
+    return result;
   }
 
   @Post(":id")
@@ -106,7 +126,10 @@ export class ProjectController {
     description: "Original project not found",
   })
   async copy(@Param("id") id: string) {
-    return this.projectsService.copy(id);
+    this.logger.log(`POST /projects/${id} - Copying project`);
+    const result = await this.projectsService.copy(id);
+    this.logger.log(`Project ${id} copied successfully with new ID: ${result?.id || 'Unknown'}`);
+    return result;
   }
 
   @Put(":id/report-definition")
@@ -128,10 +151,13 @@ export class ProjectController {
     @Body() reportDefinition: UpsertReportDefinitionDto,
     @Param("id") projectId: string,
   ) {
-    return this.reportDefinitionService.upsertByProjectId(
+    this.logger.log(`PUT /projects/${projectId}/report-definition - Upserting report definition`);
+    const result = await this.reportDefinitionService.upsertByProjectId(
       projectId,
       reportDefinition,
     );
+    this.logger.log(`Report definition for project ${projectId} upserted successfully`);
+    return result;
   }
 
   @Get(":id/report-definition")
@@ -145,6 +171,9 @@ export class ProjectController {
       "Project not found or no report definition exists for this project",
   })
   async getReportDefinition(@Param("id") projectId: string) {
-    return this.reportDefinitionService.findByProjectId(projectId);
+    this.logger.log(`GET /projects/${projectId}/report-definition - Fetching report definition`);
+    const result = await this.reportDefinitionService.findByProjectId(projectId);
+    this.logger.log(`Report definition for project ${projectId}: ${result ? 'Found' : 'Not found'}`);
+    return result;
   }
 }

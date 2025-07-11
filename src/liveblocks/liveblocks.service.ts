@@ -19,7 +19,7 @@ interface AuthUser {
 
 @Injectable()
 export class LiveblocksService {
-  private liveblocks: Liveblocks;
+  private liveblocks: Liveblocks | null;
 
   constructor(
     private readonly configService: ConfigService,
@@ -28,13 +28,16 @@ export class LiveblocksService {
     const liveblocksSecret = this.configService.get<string>(
       "LIVEBLOCKS_SECRET_KEY",
     );
-    if (!liveblocksSecret) {
-      throw new Error("LIVEBLOCKS_SECRET_KEY environment variable is required");
+    
+    // Only initialize Liveblocks if we have a valid secret key
+    if (liveblocksSecret && liveblocksSecret.startsWith('sk_')) {
+      this.liveblocks = new Liveblocks({
+        secret: liveblocksSecret,
+      });
+    } else {
+      console.warn('Liveblocks service disabled: Invalid or missing LIVEBLOCKS_SECRET_KEY (must start with "sk_")');
+      this.liveblocks = null;
     }
-
-    this.liveblocks = new Liveblocks({
-      secret: liveblocksSecret,
-    });
   }
 
   private get USER_SERVICE_URL() {
@@ -139,6 +142,11 @@ export class LiveblocksService {
     console.log(
       `Generating access token for project ${projectId}, group ${groupId}`,
     );
+
+    // Check if Liveblocks is initialized
+    if (!this.liveblocks) {
+      throw new Error('Liveblocks service is not available. Please configure a valid LIVEBLOCKS_SECRET_KEY.');
+    }
 
     try {
       // Get user info from auth service

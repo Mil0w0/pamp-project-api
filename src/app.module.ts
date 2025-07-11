@@ -22,6 +22,11 @@ import { ReportDefinitionService } from "./report/reportDefinition.service";
 import { ReportDefinitionController } from "./report/reportDefinition.controller";
 import { LiveblocksService } from "./liveblocks/liveblocks.service";
 import { LiveblocksController } from "./liveblocks/liveblocks.controller";
+import { GradingScale } from "./gradingScale/gradingScale.entity";
+import { GradingCriterion } from "./gradingScale/gradingCriterion.entity";
+import { GradingResult } from "./gradingScale/gradingResult.entity";
+import { GradingScaleService } from "./gradingScale/gradingScale.service";
+import { GradingScaleController, ProjectGradingScaleController } from "./gradingScale/gradingScale.controller";
 
 @Module({
   imports: [
@@ -33,8 +38,8 @@ import { LiveblocksController } from "./liveblocks/liveblocks.controller";
       type: "postgres",
       url:
         process.env.DATABASE_URL ||
-        "postgres://postgres:postgres@localhost:5432/pamp_projects",
-      entities: [StudentBatch, Project, ProjectGroup, Step, ReportDefinition],
+        "postgres://postgres:postgres@localhost:5433/pamp_projects",
+      entities: [StudentBatch, Project, ProjectGroup, Step, ReportDefinition, GradingScale, GradingCriterion, GradingResult],
       synchronize: true,
     }),
     TypeOrmModule.forFeature([
@@ -43,6 +48,9 @@ import { LiveblocksController } from "./liveblocks/liveblocks.controller";
       ProjectGroup,
       Step,
       ReportDefinition,
+      GradingScale,
+      GradingCriterion,
+      GradingResult,
     ]),
   ],
   controllers: [
@@ -53,6 +61,8 @@ import { LiveblocksController } from "./liveblocks/liveblocks.controller";
     ProjectGroupController,
     ReportDefinitionController,
     LiveblocksController,
+    GradingScaleController,
+    ProjectGradingScaleController,
   ],
   providers: [
     AppService,
@@ -63,6 +73,7 @@ import { LiveblocksController } from "./liveblocks/liveblocks.controller";
     StepService,
     ReportDefinitionService,
     LiveblocksService,
+    GradingScaleService,
   ],
 })
 export class AppModule {}
