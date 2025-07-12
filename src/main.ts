@@ -15,7 +15,7 @@ async function bootstrap() {
         (process.env.PORT || 3000) +
         "/swagger-ui-json)",
     )
-    .setVersion("0.0")
+    .setVersion("2.0")
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("swagger-ui", app, document);
