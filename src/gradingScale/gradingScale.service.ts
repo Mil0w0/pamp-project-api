@@ -5,7 +5,7 @@ import {
   ForbiddenException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, In } from "typeorm";
 import { GradingScale } from "./gradingScale.entity";
 import { GradingCriterion } from "./gradingCriterion.entity";
 import { GradingResult } from "./gradingResult.entity";
@@ -28,48 +28,91 @@ export class GradingScaleService {
     createGradingScaleDto: CreateGradingScaleDto,
     createdBy: string,
   ): Promise<GradingScale> {
-    const { criteria, ...gradingScaleData } = createGradingScaleDto;
+    try {
+      console.log("[DEBUG] Service create - Input DTO:", JSON.stringify(createGradingScaleDto, null, 2));
+      console.log("[DEBUG] Service create - createdBy:", createdBy);
+      
+      const { criteria, ...gradingScaleData } = createGradingScaleDto;
+      console.log("[DEBUG] Service create - gradingScaleData:", JSON.stringify(gradingScaleData, null, 2));
+      console.log("[DEBUG] Service create - criteria count:", criteria?.length || 0);
 
-    const gradingScale = this.gradingScaleRepository.create({
-      ...gradingScaleData,
-      createdBy,
-    });
+      const gradingScale = this.gradingScaleRepository.create({
+        ...gradingScaleData,
+        createdBy,
+      });
+      console.log("[DEBUG] Service create - Created entity:", JSON.stringify(gradingScale, null, 2));
 
-    const savedGradingScale = await this.gradingScaleRepository.save(
-      gradingScale,
-    );
-
-    if (criteria && criteria.length > 0) {
-      const criteriaEntities = criteria.map((criterion) =>
-        this.gradingCriterionRepository.create({
-          ...criterion,
-          gradingScale: savedGradingScale,
-        }),
+      console.log("[DEBUG] Service create - Saving grading scale...");
+      const savedGradingScale = await this.gradingScaleRepository.save(
+        gradingScale,
       );
-      await this.gradingCriterionRepository.save(criteriaEntities);
-    }
+      console.log("[DEBUG] Service create - Saved grading scale ID:", savedGradingScale.id);
 
-    return this.findOne(savedGradingScale.id);
+      if (criteria && criteria.length > 0) {
+        console.log("[DEBUG] Service create - Creating criteria entities...");
+        const criteriaEntities = criteria.map((criterion) =>
+          this.gradingCriterionRepository.create({
+            ...criterion,
+            gradingScale: savedGradingScale,
+          }),
+        );
+        console.log("[DEBUG] Service create - Saving criteria...");
+        await this.gradingCriterionRepository.save(criteriaEntities);
+        console.log("[DEBUG] Service create - Criteria saved successfully");
+      }
+
+      console.log("[DEBUG] Service create - Fetching complete entity...");
+      return this.findOne(savedGradingScale.id);
+    } catch (error) {
+      console.error("[ERROR] Service create - Error occurred:", error.message);
+      console.error("[ERROR] Service create - Stack trace:", error.stack);
+      throw error;
+    }
   }
 
-  async findByProject(projectId: string): Promise<GradingScale[]> {
+  async findByProject(
+    projectId: string,
+    type?: string,
+    targetId?: string,
+  ): Promise<GradingScale[]> {
+    const whereConditions:  Record<string, unknown> = { projectId };
+    
+    if (type) {
+      whereConditions.type = type;
+    }
+    
+    if (targetId) {
+      whereConditions.targetId = targetId;
+    }
+    
     return this.gradingScaleRepository.find({
-      where: { project: { id: projectId } },
+      where: whereConditions,
       relations: ["criteria", "criteria.results"],
     });
   }
 
   async findOne(id: string): Promise<GradingScale> {
-    const gradingScale = await this.gradingScaleRepository.findOne({
-      where: { id },
-      relations: ["criteria", "criteria.results"],
-    });
+    try {
+      console.log("[DEBUG] findOne - Looking for grading scale with ID:", id);
+      
+      const gradingScale = await this.gradingScaleRepository.findOne({
+        where: { id },
+        relations: ["criteria", "criteria.results"],
+      });
+      
+      console.log("[DEBUG] findOne - Query result:", gradingScale ? "Found" : "Not found");
 
-    if (!gradingScale) {
-      throw new NotFoundException(`GradingScale with ID ${id} not found`);
+      if (!gradingScale) {
+        console.error("[ERROR] findOne - GradingScale not found with ID:", id);
+        throw new NotFoundException(`GradingScale with ID ${id} not found`);
+      }
+      
+      console.log("[DEBUG] findOne - Returning grading scale with", gradingScale.criteria?.length || 0, "criteria");
+      return gradingScale;
+    } catch (error) {
+      console.error("[ERROR] findOne - Error occurred:", error.message);
+      throw error;
     }
-
-    return gradingScale;
   }
 
   async update(
@@ -79,6 +122,7 @@ export class GradingScaleService {
     const gradingScale = await this.findOne(id);
 
     if (gradingScale.isValidated) {
+      console.error(`[ERROR] update - Tentative de modification d'une grille validée (id: ${id})`);
       throw new ForbiddenException(
         "Cannot update a validated grading scale",
       );
@@ -194,21 +238,41 @@ export class GradingScaleService {
       );
     }
 
-    const results = createGradingResultDto.results.map((resultItem) => {
-      return this.gradingResultRepository.create({
-        ...resultItem,
+    const results = [];
+    for (const resultItem of createGradingResultDto.results) {
+      const criterion = await this.gradingCriterionRepository.findOne({
+        where: { id: resultItem.gradingCriterionId },
+      });
+      
+      if (!criterion) {
+        throw new NotFoundException(`Criterion with ID ${resultItem.gradingCriterionId} not found`);
+      }
+
+      const result = this.gradingResultRepository.create({
+        score: resultItem.score,
+        comment: resultItem.comment,
         targetGroupId: createGradingResultDto.targetGroupId,
         targetStudentId: createGradingResultDto.targetStudentId,
+        gradingCriterion: criterion,
         createdBy,
       });
-    });
+      
+      results.push(result);
+    }
 
     return this.gradingResultRepository.save(results);
   }
 
   async getResults(gradingScaleId: string): Promise<GradingResult[]> {
+    const gradingScale = await this.findOne(gradingScaleId);
+    const criteriaIds = gradingScale.criteria.map(criterion => criterion.id);
+    
+    if (criteriaIds.length === 0) {
+      return [];
+    }
+    
     return this.gradingResultRepository.find({
-      where: { gradingCriterion: { gradingScale: { id: gradingScaleId } } },
+      where: { gradingCriterion: { id: In(criteriaIds) } },
       relations: ["gradingCriterion"],
     });
   }

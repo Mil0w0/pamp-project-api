@@ -23,7 +23,7 @@ import { ReportDefinitionService } from "../report/reportDefinition.service";
 import { UpsertReportDefinitionDto } from "../report/dto/upsert-report-definition.dto";
 import { StudentService } from "../studentBatch/students.service";
 
-@ApiTags("Projects")
+@ApiTags('Projects')
 @Controller("projects")
 export class ProjectController {
   private readonly logger = new Logger(ProjectController.name);

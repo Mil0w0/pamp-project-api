@@ -49,8 +49,8 @@ export class GradingScale {
   @Column("uuid")
   createdBy: string;
 
-  @Column("uuid")
-  projectId: string;
+  @Column("uuid", { nullable: true })
+  projectId?: string;
 
   @Column({
     type: "timestamp",
@@ -65,9 +65,9 @@ export class GradingScale {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => Project, { onDelete: "CASCADE" })
+  @ManyToOne(() => Project, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "projectId" })
-  project: Project;
+  project?: Project;
 
   @OneToMany(() => GradingCriterion, (criterion) => criterion.gradingScale, {
     cascade: true,

@@ -7,39 +7,16 @@ import {
   IsOptional,
   ValidateNested,
   IsArray,
-  IsNumber,
-  IsBoolean,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { GradingScaleType, NotationMode } from "../gradingScale.entity";
-
-export class CreateGradingCriterionDto {
-  @ApiProperty({ example: "Qualité du rendu" })
-  @IsString()
-  @IsNotEmpty()
-  label: string;
-
-  @ApiProperty({ example: 5 })
-  @IsNumber()
-  @IsNotEmpty()
-  maxPoints: number;
-
-  @ApiProperty({ example: 0.3, required: false })
-  @IsOptional()
-  @IsNumber()
-  weight?: number;
-
-  @ApiProperty({ example: true, required: false })
-  @IsOptional()
-  @IsBoolean()
-  commentEnabled?: boolean;
-}
+import { CreateGradingCriterionDto } from "./create-grading-criterion.dto";
 
 export class CreateGradingScaleDto {
-  @ApiProperty({ example: "project-uuid" })
+  @ApiProperty({ example: "project-uuid", required: false })
+  @IsOptional()
   @IsUUID()
-  @IsNotEmpty()
-  projectId: string;
+  projectId?: string;
 
   @ApiProperty({ enum: GradingScaleType, example: GradingScaleType.LIVRABLE })
   @IsEnum(GradingScaleType)

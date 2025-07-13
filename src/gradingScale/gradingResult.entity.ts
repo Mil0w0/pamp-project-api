@@ -24,8 +24,11 @@ export class GradingResult {
   @Column("text", { nullable: true })
   comment: string;
 
-  @Column("uuid")
+  @Column("uuid", { nullable: true })
   createdBy: string;
+
+  @Column("uuid")
+  gradingCriterionId: string;
 
   @Column({
     type: "timestamp",

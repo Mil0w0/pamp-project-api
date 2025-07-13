@@ -16,7 +16,7 @@ import { CreateReportDefinitionDto } from "./dto/create-report-definition.dto";
 import { PatchReportDefinitionDto } from "./dto/update-report-definition.dto";
 import { ListReportDefinitionsDto } from "./dto/list-report-definitions.dto";
 
-@ApiTags("Report Definitions")
+@ApiTags("ReportDefinitions")
 @Controller("report-definitions")
 export class ReportDefinitionController {
   constructor(

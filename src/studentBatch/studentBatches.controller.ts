@@ -19,7 +19,7 @@ import { ListStudentBatchesDto } from "./dto/list-student-batches.dto";
 import { PatchStudentBatchDto } from "./dto/update-student-batch.dto";
 import { StudentService } from "./students.service";
 
-@ApiTags("StudentBatches")
+@ApiTags('StudentBatches')
 @Controller("student-batches")
 export class StudentBatchesController {
   constructor(

@@ -20,7 +20,7 @@ import { CreateBatchGroupsDto } from "./dto/create-project-dto";
 import { StudentService } from "../studentBatch/students.service";
 import { ReportDefinitionService } from "../report/reportDefinition.service";
 
-@ApiTags("ProjectGroups")
+@ApiTags('ProjectGroups')
 @Controller("projectGroups")
 export class ProjectGroupController {
   constructor(
