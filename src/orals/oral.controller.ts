@@ -19,9 +19,7 @@ import { ListOralDto } from "./dto/list-oral-dto";
 @ApiTags("Orals")
 @Controller("orals")
 export class OralController {
-  constructor(
-    private readonly oralService: OralsService,
-  ) {}
+  constructor(private readonly oralService: OralsService) {}
 
   @Post("")
   @ApiResponse({
