@@ -9,7 +9,6 @@ import { Repository } from "typeorm";
 import { DEFAULT_ELEMENT_BY_PAGE } from "../constants";
 
 import { Project } from "../project/project.entity";
-import { StudentService } from "../studentBatch/students.service";
 import { Oral } from "./oral.entity";
 import { CreateOralDto } from "./dto/create-oral-dto";
 import { PatchOralDto } from "./dto/patch-oral-dto";
@@ -25,7 +24,6 @@ export class OralsService {
     private oralRepository: Repository<Oral>,
     @InjectRepository(ProjectGroup)
     private projectGroupRepository: Repository<ProjectGroup>,
-    private readonly studentService: StudentService,
   ) {}
 
   async create(oralDTO: CreateOralDto) {
