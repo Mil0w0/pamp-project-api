@@ -79,6 +79,7 @@ export class ProjectGroupService {
    *
    * @param limit : number
    * @param page : number
+   * @param projectId : string
    * Get all student batches with pagination
    */
   async findAll({ limit, page, projectId }: ListProjectGroupsDto) {
