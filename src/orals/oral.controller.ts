@@ -2,31 +2,27 @@ import {
   Body,
   Controller,
   Delete,
-  ForbiddenException,
   Get,
   Param,
   Patch,
   Post,
   Query,
-  Req,
   UsePipes,
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StudentService } from "../studentBatch/students.service";
-import {CreateOralDto} from "./dto/create-oral-dto";
-import {ProjectGroupService} from "../projectGroup/projectGroup.service";
-import {OralsService} from "./orals.service";
-import {PatchOralDto} from "./dto/patch-oral-dto";
-import {ListOralDto} from "./dto/list-oral-dto";
+import { CreateOralDto } from "./dto/create-oral-dto";
+import { ProjectGroupService } from "../projectGroup/projectGroup.service";
+import { OralsService } from "./orals.service";
+import { PatchOralDto } from "./dto/patch-oral-dto";
+import { ListOralDto } from "./dto/list-oral-dto";
 
 @ApiTags("Orals")
 @Controller("orals")
 export class OralController {
   constructor(
     private readonly oralService: OralsService,
-    private readonly studentService: StudentService,
-    private readonly groupsService: ProjectGroupService,
   ) {}
 
   @Post("")
@@ -52,13 +48,8 @@ export class OralController {
     description: "Json structure for update oral object",
   })
   @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
-  async patch(
-    @Body() oral: PatchOralDto,
-    @Param("id") id: string,
-    @Req() req,
-  ) {
-    const bearerToken = req.headers["authorization"];
-    return this.oralService.update(id, oral, bearerToken);
+  async patch(@Body() oral: PatchOralDto, @Param("id") id: string) {
+    return this.oralService.update(id, oral);
   }
 
   @Get(":id")
@@ -75,7 +66,10 @@ export class OralController {
     status: 200,
     description: "The orals for this project have been successfully fetched.",
   })
-  async findAll(@Query() params: ListOralDto, @Param("projectId") projectId: string) {
+  async findAll(
+    @Query() params: ListOralDto,
+    @Param("projectId") projectId: string,
+  ) {
     return this.oralService.findAllByProject(params, projectId);
   }
 

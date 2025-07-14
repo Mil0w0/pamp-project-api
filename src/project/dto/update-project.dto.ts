@@ -72,10 +72,9 @@ export class PatchProjectDto {
   @IsOptional()
   oralsConfigEndTime?: string;
 
-
   @ApiProperty({
     example: 15,
-    description: 'One oral duration in minutes',
+    description: "One oral duration in minutes",
     required: false,
   })
   @IsOptional()

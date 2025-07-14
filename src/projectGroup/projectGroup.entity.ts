@@ -3,10 +3,11 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  PrimaryGeneratedColumn, OneToOne,
+  PrimaryGeneratedColumn,
+  OneToOne,
 } from "typeorm";
 import { Project } from "../project/project.entity";
-import {Oral} from "../orals/oral.entity";
+import { Oral } from "../orals/oral.entity";
 
 @Entity()
 export class ProjectGroup {
@@ -44,5 +45,5 @@ export class ProjectGroup {
   studentsIds: string;
 
   @OneToOne(() => Oral, (oral) => oral.group, { cascade: true, nullable: true })
-  oral: Oral
+  oral: Oral;
 }

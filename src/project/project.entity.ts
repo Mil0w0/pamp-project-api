@@ -82,8 +82,5 @@ export class Project {
   oralsConfigEndTime: Date;
 
   @Column({ nullable: true })
-  oralsConfigDuration:  number; //minutes
-
-
-
+  oralsConfigDuration: number; //minutes
 }
