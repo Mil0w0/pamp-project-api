@@ -74,4 +74,16 @@ export class Project {
     },
   )
   reportDefinition: ReportDefinition;
+
+  @Column({ nullable: true })
+  oralsConfigStartTime: Date;
+
+  @Column({ nullable: true })
+  oralsConfigEndTime: Date;
+
+  @Column({ nullable: true })
+  oralsConfigDuration:  number; //minutes
+
+
+
 }

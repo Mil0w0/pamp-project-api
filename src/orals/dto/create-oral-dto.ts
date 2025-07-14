@@ -8,14 +8,14 @@ export class CreateOralDto {
     required: true,
   })
   @IsString()
-  startDate: string;
+  startTime: string;
 
   @ApiProperty({
     example: "ISO STRING",
     required: true,
   })
   @IsString()
-  endDate: string;
+  endTime: string;
 
   @ApiProperty({
     example: "GROUP UUID",

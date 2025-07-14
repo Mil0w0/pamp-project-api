@@ -30,7 +30,8 @@ export class OralsService {
     }
 
     async create(oralDTO: CreateOralDto) {
-        const {groupId, startDate, endDate} = {...oralDTO}
+        console.log(oralDTO)
+        const {groupId, startTime, endTime} = {...oralDTO}
 
         const group = await this.projectGroupRepository.findOneBy({
             id: groupId
@@ -50,8 +51,8 @@ export class OralsService {
         }
         try {
             return await this.oralRepository.save({
-                startTime: startDate,
-                endTime: endDate,
+                startTime: startTime,
+                endTime: endTime,
                 group: group,
             })
         } catch (error) {
@@ -59,7 +60,6 @@ export class OralsService {
                 error.message || "An error occurred while creating the oral",
             );
         }
-
     }
 
     async findOne(id: string) {
@@ -85,7 +85,9 @@ export class OralsService {
      * Get all orals from groups linked to a specific project
      */
     async findAllByProject({limit, page}: ListOralDto, projectId: string) {
+
         const project = await this.projectsRepository.findOneBy({id: projectId});
+
         if (!project) {
             throw new NotFoundException(`Project not found`);
         }
@@ -93,10 +95,11 @@ export class OralsService {
             return await this.oralRepository.find({
                 take: limit || DEFAULT_ELEMENT_BY_PAGE,
                 skip: (page - 1) * limit || 0,
-                where: {group: {project: project}},
+                where: {group: {project: {id: projectId,}}},
                 relations: ["group"],
             });
         } catch (error) {
+            console.error(error);
             throw new InternalServerErrorException(`Oospie doopsie. ${error}`);
         }
     }
