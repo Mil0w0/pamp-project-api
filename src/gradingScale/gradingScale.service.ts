@@ -281,28 +281,34 @@ export class GradingScaleService {
     resultId: string,
     resultData: Partial<GradingResult>,
   ): Promise<GradingResult> {
-    const result = await this.gradingResultRepository.findOne({
-      where: { id: resultId },
-      relations: ["gradingCriterion", "gradingCriterion.gradingScale"],
-    });
-
-    if (!result) {
-      throw new NotFoundException(`Result with ID ${resultId} not found`);
+    console.log(`[DEBUG] updateResult - Called with resultId: ${resultId}, resultData:`, resultData);
+    try {
+      const result = await this.gradingResultRepository.findOne({
+        where: { id: resultId },
+        relations: ["gradingCriterion", "gradingCriterion.gradingScale"],
+      });
+      console.log("[DEBUG] updateResult - Result fetched:", result);
+      if (!result) {
+        console.error(`[ERROR] updateResult - Result with ID ${resultId} not found`);
+        throw new NotFoundException(`Result with ID ${resultId} not found`);
+      }
+      if (result.gradingCriterion.gradingScale.isValidated) {
+        console.error(`[ERROR] updateResult - Grading scale is validated for resultId: ${resultId}`);
+        throw new ForbiddenException(
+          "Cannot update results of a validated grading scale",
+        );
+      }
+      await this.gradingResultRepository.update(resultId, resultData);
+      const updatedResult = await this.gradingResultRepository.findOne({ where: { id: resultId } });
+      console.log("[DEBUG] updateResult - Updated result:", updatedResult);
+      if (!updatedResult) {
+        console.error(`[ERROR] updateResult - Updated result with ID ${resultId} not found`);
+        throw new NotFoundException(`Updated result with ID ${resultId} not found`);
+      }
+      return updatedResult;
+    } catch (error) {
+      console.error(`[ERROR] updateResult - Exception:`, error);
+      throw error;
     }
-
-    if (result.gradingCriterion.gradingScale.isValidated) {
-      throw new ForbiddenException(
-        "Cannot update results of a validated grading scale",
-      );
-    }
-
-    await this.gradingResultRepository.update(resultId, resultData);
-    const updatedResult = await this.gradingResultRepository.findOne({ where: { id: resultId } });
-    
-    if (!updatedResult) {
-      throw new NotFoundException(`Updated result with ID ${resultId} not found`);
-    }
-    
-    return updatedResult;
   }
 }
