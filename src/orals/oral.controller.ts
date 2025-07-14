@@ -11,9 +11,7 @@ import {
   ValidationPipe,
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { StudentService } from "../studentBatch/students.service";
 import { CreateOralDto } from "./dto/create-oral-dto";
-import { ProjectGroupService } from "../projectGroup/projectGroup.service";
 import { OralsService } from "./orals.service";
 import { PatchOralDto } from "./dto/patch-oral-dto";
 import { ListOralDto } from "./dto/list-oral-dto";
