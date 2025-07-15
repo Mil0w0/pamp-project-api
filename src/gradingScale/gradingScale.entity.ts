@@ -65,6 +65,12 @@ export class GradingScale {
   })
   updatedAt: Date;
 
+  @Column({
+    type: "timestamp",
+    nullable: true
+  })
+  validatedAt: Date;
+
   @ManyToOne(() => Project, { onDelete: "CASCADE", nullable: true })
   @JoinColumn({ name: "projectId" })
   project?: Project;

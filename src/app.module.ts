@@ -17,7 +17,7 @@ import { ProjectGroupController } from "./projectGroup/projectGroup.controller";
 import { Step } from "./steps/step.entity";
 import { StepController } from "./steps/step.controller";
 import { StepService } from "./steps/step.service";
-import { ReportDefinition } from "./report/reportDefinition.entiy";
+import { ReportDefinition } from "./report/reportDefinition.entity";
 import { ReportDefinitionService } from "./report/reportDefinition.service";
 import { ReportDefinitionController } from "./report/reportDefinition.controller";
 import { LiveblocksService } from "./liveblocks/liveblocks.service";

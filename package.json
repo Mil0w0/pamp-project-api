@@ -17,7 +17,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "migration:generate": "typeorm migration:generate src/migration/InitSchema -d ./src/data-source.ts"
   },
   "dependencies": {
     "@liveblocks/node": "^3.0.0",
@@ -34,10 +35,12 @@
     "class-validator": "^0.14.1",
     "dotenv": "^16.5.0",
     "jsonwebtoken": "^9.0.2",
+    "nest-winston": "^1.10.2",
     "pg": "^8.16.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.2",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "winston": "^3.17.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

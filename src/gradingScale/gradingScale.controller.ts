@@ -11,6 +11,7 @@ import {
   Req,
   UsePipes,
   ValidationPipe,
+  Logger,
 } from "@nestjs/common";
 import { ApiBody, ApiResponse, ApiTags, ApiOperation, ApiParam, ApiQuery } from "@nestjs/swagger";
 import { GradingScaleService } from "./gradingScale.service";
@@ -25,6 +26,7 @@ import { UpdateGradingCriterionDto } from "./dto/update-grading-criterion.dto";
 @ApiTags("GradingScales")
 @Controller("grading-scales")
 export class GradingScaleController {
+  private readonly logger = new Logger(GradingScaleController.name);
   constructor(private readonly gradingScaleService: GradingScaleService) {}
 
   @Post()
@@ -59,18 +61,17 @@ export class GradingScaleController {
     @Req() req: Request,
   ) {
     try {
-      console.log("[DEBUG] Received request body:", JSON.stringify(createGradingScaleDto, null, 2));
+      this.logger.debug(`Received request body: ${JSON.stringify(createGradingScaleDto, null, 2)}`);
       
       const createdBy = (req as { user?: { user_id: string } }).user?.user_id || "00000000-0000-0000-0000-000000000000";
-      console.log("[DEBUG] createdBy:", createdBy);
+      this.logger.debug(`createdBy: ${createdBy}`);
       
       const result = await this.gradingScaleService.create(createGradingScaleDto, createdBy);
-      console.log("[DEBUG] Grading scale created successfully:", result.id);
+      this.logger.debug(`Grading scale created successfully: ${result.id}`);
       
       return result;
     } catch (error) {
-      console.error("[ERROR] Failed to create grading scale:", error.message);
-      console.error("[ERROR] Stack trace:", error.stack);
+      this.logger.error(`Failed to create grading scale: ${error.message}`, error.stack);
       throw error;
     }
   }

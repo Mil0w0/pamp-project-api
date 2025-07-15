@@ -1,229 +1,294 @@
-# Gestion des grilles de notation (GradingScales)
+# GradingScale API - Endpoints, DTOs et Bonnes Pratiques
 
-Ce module gère la création, la modification, la validation et la suppression des grilles de notation, ainsi que la gestion des critères et des résultats associés.
+Ce document regroupe tous les endpoints REST du module GradingScale, les DTOs associés, des exemples d'utilisation et les bonnes pratiques pour l'intégration côté frontend.
 
-## Endpoints
+## Endpoints principaux
 
-### 1. Créer une grille de notation
+### Créer une grille de notation
 - **POST** `/grading-scales`
-- **Body** : [`CreateGradingScaleDto`](#dtos)
-- **Réponse 201** : Grille créée (exemple)
+- **Body** :
 ```json
 {
-  "id": "123e4567-e89b-12d3-a456-426614174000",
   "type": "livrable",
-  "targetId": "123e4567-e89b-12d3-a456-426614174001",
-  "notationMode": "groupe",
-  "title": "Évaluation Livrable 1",
-  "isValidated": false,
-  "createdAt": "2025-01-12T10:00:00Z",
-  "criteria": []
+  "targetId": "string (UUID)",
+  "notationMode": "groupe | individuel",
+  "title": "string"
 }
 ```
+- **Réponse 201** : Grille créée (voir exemple plus bas)
 
-### 2. Récupérer une grille de notation
+### Récupérer une grille de notation
 - **GET** `/grading-scales/{id}`
-- **Paramètre** : `id` (UUID)
-- **Réponse 200** : Grille trouvée (exemple)
-```json
-{
-  "id": "123e4567-e89b-12d3-a456-426614174000",
-  "type": "livrable",
-  "targetId": "123e4567-e89b-12d3-a456-426614174001",
-  "notationMode": "groupe",
-  "title": "Évaluation Livrable 1",
-  "isValidated": true,
-  "createdAt": "2025-01-12T10:00:00Z",
-  "criteria": [
-    {
-      "id": "123e4567-e89b-12d3-a456-426614174002",
-      "label": "Qualité du code",
-      "maxPoints": 20,
-      "weight": 0.4,
-      "commentsEnabled": true
-    }
-  ]
-}
-```
-
-### 3. Modifier une grille de notation
-- **PATCH** `/grading-scales/{id}`
-- **Paramètre** : `id` (UUID)
-- **Body** : [`UpdateGradingScaleDto`](#dtos)
-- **Réponse 200** : Grille modifiée
-
-### 4. Supprimer une grille de notation
-- **DELETE** `/grading-scales/{id}`
-- **Paramètre** : `id` (UUID)
-- **Réponse 200** : Grille supprimée
-
-### 5. Valider une grille de notation
-- **POST** `/grading-scales/{id}/validate`
-- **Paramètre** : `id` (UUID)
 - **Réponse 200** :
 ```json
 {
-  "id": "123e4567-e89b-12d3-a456-426614174000",
+  "id": "string (UUID)",
+  "type": "livrable",
+  "targetId": "string (UUID)",
+  "notationMode": "groupe | individuel",
+  "title": "string",
   "isValidated": true,
-  "validatedAt": "2025-01-12T10:30:00Z"
+  "createdAt": "ISODate",
+  "criteria": [ ... ]
 }
 ```
 
-### 6. Ajouter un critère à une grille
-- **POST** `/grading-scales/{id}/criteria`
-- **Paramètre** : `id` (UUID)
-- **Body** : [`CreateGradingCriterionDto`](#dtos)
-- **Réponse 201** : Critère ajouté
-
-### 7. Modifier un critère
-- **PUT** `/grading-scales/criteria/{criterionId}`
-- **Paramètre** : `criterionId` (UUID)
-- **Body** : [`UpdateGradingCriterionDto`](#dtos)
-- **Réponse 200** : Critère modifié
-
-### 8. Supprimer un critère
-- **DELETE** `/grading-scales/criteria/{criterionId}`
-- **Paramètre** : `criterionId` (UUID)
-- **Réponse 200** : Critère supprimé
-
-### 9. Enregistrer des résultats de notation
-- **POST** `/grading-scales/{id}/results`
-- **Paramètre** : `id` (UUID)
-- **Body** : [`CreateGradingResultDto`](#dtos)
-- **Réponse 201** : Résultat enregistré
-
-#### Exemple de requête
+### Modifier une grille de notation
+- **PATCH** `/grading-scales/{id}`
+- **Body** :
 ```json
 {
-  "targetGroupId": "groupe-uuid",
-  "targetStudentId": "student-uuid",
+  "title": "string (optionnel)"
+}
+```
+
+### Supprimer une grille de notation
+- **DELETE** `/grading-scales/{id}`
+
+### Valider une grille de notation
+- **POST** `/grading-scales/{id}/validate`
+
+### Ajouter un critère à une grille
+- **POST** `/grading-scales/{id}/criteria`
+- **Body** :
+```json
+{
+  "label": "string",
+  "maxPoints": 20,
+  "weight": 0.4,
+  "commentsEnabled": true
+}
+```
+
+### Modifier un critère
+- **PUT** `/grading-scales/criteria/{criterionId}`
+- **Body** :
+```json
+{
+  "label": "string (optionnel)",
+  "maxPoints": 20,
+  "weight": 0.4,
+  "commentsEnabled": true
+}
+```
+
+### Supprimer un critère
+- **DELETE** `/grading-scales/criteria/{criterionId}`
+
+### Enregistrer des résultats de notation
+- **POST** `/grading-scales/{id}/results`
+- **Body** :
+```json
+{
+  "targetGroupId": "string (UUID, optionnel)",
+  "targetStudentId": "string (UUID, optionnel)",
   "results": [
     {
-      "gradingCriterionId": "criterion-uuid",
+      "gradingCriterionId": "string (UUID)",
       "score": 18,
-      "comment": "Excellent travail sur la qualité du code"
+      "comment": "string (optionnel)"
     }
   ]
 }
 ```
-
-#### Exemple de réponse
+- **Réponse 201** :
 ```json
 [
   {
-    "id": "result-uuid",
-    "targetGroupId": "groupe-uuid",
+    "id": "string (UUID)",
+    "targetGroupId": "string (UUID)",
     "score": 18,
-    "comment": "Excellent travail sur la qualité du code",
-    "gradingCriterionId": "criterion-uuid",
-    "createdBy": "user-uuid",
-    "createdAt": "2025-01-12T11:00:00Z"
+    "comment": "string",
+    "gradingCriterionId": "string (UUID)",
+    "createdBy": "string (UUID)",
+    "createdAt": "ISODate"
   }
 ]
 ```
 
-#### Contrôleur (extrait)
-```typescript
-@Post(":id/results")
-@UsePipes(new ValidationPipe())
-async createResults(
-  @Param("id") id: string,
-  @Body() createGradingResultDto: CreateGradingResultDto,
-  @Req() req: Request & { user?: { user_id: string } },
-) {
-  const createdBy = req.user?.user_id || "system";
-  return this.gradingScaleService.createResults(
-    id,
-    createGradingResultDto,
-    createdBy,
-  );
-}
-```
-
-#### Service (extrait)
-```typescript
-async createResults(
-  gradingScaleId: string,
-  createGradingResultDto: CreateGradingResultDto,
-  createdBy: string,
-): Promise<GradingResult[]> {
-  const gradingScale = await this.findOne(gradingScaleId);
-
-  if (gradingScale.isValidated) {
-    throw new ForbiddenException(
-      "Cannot add results to a validated grading scale",
-    );
-  }
-
-  const results = [];
-  for (const resultItem of createGradingResultDto.results) {
-    const criterion = await this.gradingCriterionRepository.findOne({
-      where: { id: resultItem.gradingCriterionId },
-    });
-    if (!criterion) {
-      throw new NotFoundException(`Criterion with ID ${resultItem.gradingCriterionId} not found`);
-    }
-    const result = this.gradingResultRepository.create({
-      score: resultItem.score,
-      comment: resultItem.comment,
-      targetGroupId: createGradingResultDto.targetGroupId,
-      targetStudentId: createGradingResultDto.targetStudentId,
-      gradingCriterion: criterion,
-      createdBy,
-    });
-    results.push(result);
-  }
-  return this.gradingResultRepository.save(results);
-}
-```
-
-#### Logique de gestion et validation
-- **Vérification de la grille** : la grille doit exister, sinon une erreur 404 est renvoyée.
-- **Validation de la grille** : il est interdit d'ajouter des résultats à une grille déjà validée (`ForbiddenException`).
-- **Vérification des critères** : chaque résultat doit référencer un critère existant, sinon une erreur 404 est renvoyée.
-- **Validation des données** : les DTOs sont validés via `ValidationPipe` (types, champs obligatoires, etc).
-- **Gestion des erreurs** :
-  - 404 si la grille ou un critère n'existe pas
-  - 403 si la grille est validée
-  - 400 si les données sont invalides
-
-### 10. Modifier un résultat de notation
+### Modifier un résultat de notation
 - **PATCH** `/grading-scales/results/{resultId}`
-- **Paramètre** : `resultId` (UUID)
-- **Body** : [`UpdateGradingResultDto`](#dtos)
-- **Réponse 200** : Résultat modifié
+- **Body** :
+```json
+{
+  "score": 18,
+  "comment": "string (optionnel)"
+}
+```
 
-### 11. Supprimer un résultat de notation
+### Supprimer un résultat de notation
 - **DELETE** `/grading-scales/results/{resultId}`
-- **Paramètre** : `resultId` (UUID)
-- **Réponse 200** : Résultat supprimé
+
+## DTOs principaux
+
+- **CreateGradingScaleDto**
+  - `type`: "livrable" | "rapport" | "soutenance"
+  - `targetId`: string (UUID)
+  - `notationMode`: "groupe" | "individuel"
+  - `title`: string
+
+- **UpdateGradingScaleDto**
+  - `title?`: string
+
+- **CreateGradingCriterionDto**
+  - `label`: string
+  - `maxPoints`: number
+  - `weight`: number
+  - `commentsEnabled`: boolean
+
+- **UpdateGradingCriterionDto**
+  - `label?`: string
+  - `maxPoints?`: number
+  - `weight?`: number
+  - `commentsEnabled?`: boolean
+
+- **CreateGradingResultDto**
+  - `targetGroupId?`: string (UUID)
+  - `targetStudentId?`: string (UUID)
+  - `results`: GradingResultItemDto[]
+
+- **GradingResultItemDto**
+  - `gradingCriterionId`: string (UUID)
+  - `score`: number
+  - `comment?`: string
+
+- **UpdateGradingResultDto**
+  - `score?`: number
+  - `comment?`: string
+
+## Bonnes pratiques pour le frontend
+
+- Toujours vérifier les statuts HTTP et gérer les erreurs 400, 403, 404.
+- Utiliser les DTOs pour valider les données côté client avant envoi.
+- Les UUIDs doivent être valides (vérification côté frontend recommandée).
+- Après validation d'une grille, elle n'est plus modifiable ni supprimable.
+- Les critères ne peuvent être modifiés/supprimés que si la grille n'est pas validée.
+- Les champs optionnels doivent être omis ou explicitement mis à null selon le cas d'usage.
+- Utiliser les exemples de requêtes/réponses pour simuler les appels API côté frontend.
+- Respecter les types attendus (notamment pour les scores numériques et les UUIDs).
 
 ---
 
-## DTOs
+Pour plus d'exemples ou de détails, se référer à la documentation principale du projet ou contacter l'équipe backend.
 
-### CreateGradingScaleDto
-- `projectId?` : string (UUID)
-- `type` : "livrable" | "rapport" | "soutenance"
-- `targetId` : string (UUID)
-- `notationMode` : "groupe" | "individuel"
-- `title` : string
-- `criteria?` : [`CreateGradingCriterionDto`[]]
+---
 
-### UpdateGradingScaleDto
-- `title?` : string
+# Endpoints Project, ProjectGroup et Step
 
-### CreateGradingCriterionDto
-- `label` : string
-- `maxPoints` : number
-- `weight?` : number
-- `commentEnabled?` : boolean
+## Project
 
-### UpdateGradingCriterionDto
-- `label?` : string
-- `maxPoints?` : number
-- `weight?` : number
-- `commentEnabled?` : boolean
+### Créer un projet
+- **POST** `/projects`
+- **Body** :
+```json
+{
+  "name": "string"
+}
+```
+- **Réponse 201** : Projet créé
+
+### Modifier un projet
+- **PATCH** `/projects/{id}`
+- **Body** :
+```json
+{
+  "name": "string (optionnel)"
+}
+```
+
+### Récupérer un projet
+- **GET** `/projects/{id}`
+- **Réponse 200** : Projet trouvé
+
+### Lister les projets
+- **GET** `/projects?limit=10&page=1`
+- **Réponse 200** : Liste paginée
+
+### Supprimer un projet
+- **DELETE** `/projects/{id}`
+
+### Copier un projet
+- **POST** `/projects/{id}`
+
+### Upsert report definition
+- **PUT** `/projects/{id}/report-definition`
+- **Body** : UpsertReportDefinitionDto
+
+### Récupérer report definition
+- **GET** `/projects/{id}/report-definition`
+
+#### DTOs Project
+- **CreateProjectDto** : `{ "name": string }`
+- **PatchProjectDto** : `{ "name"?: string }`
+- **ListProjectsDto** : `{ "limit"?: number, "page"?: number }`
+
+## ProjectGroup
+
+### Créer un groupe de projet
+- **POST** `/projectGroups`
+- **Body** :
+```json
+{
+  "name": "string",
+  "studentsIds": "string (liste d'UUIDs séparés par des virgules)"
+}
+```
+
+### Modifier un groupe
+- **PATCH** `/projectGroups/{id}`
+- **Body** :
+```json
+{
+  "name": "string (optionnel)"
+}
+```
+
+### Récupérer un groupe
+- **GET** `/projectGroups/{id}`
+
+### Lister les groupes
+- **GET** `/projectGroups?limit=10&page=1`
+
+### Supprimer un groupe
+- **DELETE** `/projectGroups/{id}`
+
+### Mes groupes (étudiant)
+- **GET** `/projectGroups/myGroups`
+
+### Soumettre un rapport (étudiant)
+- **POST** `/projectGroups/{id}/submit-report`
+
+### Récupérer report definition
+- **GET** `/projectGroups/{id}/report-definition`
+
+#### DTOs ProjectGroup
+- **CreateBatchGroupsDto** : `{ "name": string, "studentsIds"?: string }`
+- **PatchGroupProjectDto** : `{ "name"?: string }`
+- **ListProjectGroupsDto** : `{ "limit"?: number, "page"?: number, "studentId"?: string }`
+
+## Step
+
+### Créer ou mettre à jour les étapes d'un projet
+- **POST** `/projects/{projectId}/steps`
+- **Body** : Tableau de CreateStepDTO
+
+### Modifier une étape
+- **PATCH** `/projects/{projectId}/steps/{id}`
+- **Body** : PatchStepDTO
+
+### Récupérer une étape
+- **GET** `/projects/{projectId}/steps/{id}`
+
+### Lister les étapes d'un projet
+- **GET** `/projects/{projectId}/steps?limit=10&page=1`
+
+### Supprimer une étape
+- **DELETE** `/projects/{projectId}/steps/{id}`
+
+#### DTOs Step
+- **CreateStepDTO** : `{ "name": string, "description"?: string, "hasMandatorySubmission"?: boolean }`
+- **PatchStepDTO** : `{ "name"?: string, "description"?: string, "hasMandatorySubmission"?: boolean }`
+- **ListStepDto** : `{ "limit"?: number, "page"?: number }`
 
 ### CreateGradingResultDto
 - `targetGroupId?` : string (UUID)
