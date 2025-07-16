@@ -57,6 +57,28 @@ export class PatchProjectDto {
   })
   @IsOptional()
   creationGroupDeadLineDate?: string;
+
+  @ApiProperty({
+    example: "12/07/2025T20:00:00Z",
+    required: false,
+  })
+  @IsOptional()
+  oralsConfigStartTime?: string;
+
+  @ApiProperty({
+    example: "12/07/2025T20:00:00Z",
+    required: false,
+  })
+  @IsOptional()
+  oralsConfigEndTime?: string;
+
+  @ApiProperty({
+    example: 15,
+    description: "One oral duration in minutes",
+    required: false,
+  })
+  @IsOptional()
+  oralsConfigDuration?: string;
 }
 
 export type UpdatedProjectPatchDto = {

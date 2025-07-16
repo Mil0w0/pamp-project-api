@@ -24,16 +24,16 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('PAMP PROJECT SERVICE')
-    .setDescription('API RESTful pour la gestion des projets étudiants')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .addTag('StudentBatches', 'Gestion des promotions d\'étudiants')
-    .addTag('Projects', 'Gestion des projets')
-    .addTag('ProjectGroups', 'Gestion des groupes de projet')
-    .addTag('Report Definitions', 'Gestion des définitions de rapport')
-    .addTag('Liveblocks', 'Collaboration temps réel')
-    .addTag('GradingScales', 'Gestion des grilles de notation')
+    .setTitle("PAMP PROJECT SERVICE")
+    .setDescription(
+      "The PAMP project service API" +
+        "\n\n" +
+        "The JSON schema for the API can be found at [swagger-ui-json](" +
+        "http://localhost:" +
+        (process.env.PORT || 3000) +
+        "/swagger-ui-json)",
+    )
+    .setVersion("3.0")
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document, {

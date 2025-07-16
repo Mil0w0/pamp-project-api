@@ -64,7 +64,7 @@ export class ProjectGroupService {
     try {
       const projectGroup = await this.projectGroupRepository.findOne({
         where: { id },
-        relations: ["project"],
+        relations: ["project", "oral"],
       });
       if (!projectGroup) {
         throw new NotFoundException(`Project group '${id}' not found`);
@@ -79,6 +79,7 @@ export class ProjectGroupService {
    *
    * @param limit : number
    * @param page : number
+   * @param projectId : string
    * Get all student batches with pagination
    */
   async findAll({ limit, page, projectId }: ListProjectGroupsDto) {
@@ -87,7 +88,7 @@ export class ProjectGroupService {
         take: limit || DEFAULT_ELEMENT_BY_PAGE,
         skip: (page - 1) * limit || 0,
         where: projectId ? { project: { id: projectId } } : undefined,
-        relations: ["project"],
+        relations: ["project", "oral"],
       });
     } catch (error) {
       throw new InternalServerErrorException(`Oospie doopsie. ${error}`);
@@ -129,7 +130,7 @@ export class ProjectGroupService {
       await this.projectGroupRepository.update(id, fielsToUpdate);
       return await this.projectGroupRepository.findOne({
         where: { id },
-        relations: ["project"],
+        relations: ["project", "oral"],
       });
     } catch (error) {
       throw new InternalServerErrorException(error);

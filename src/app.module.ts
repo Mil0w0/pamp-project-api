@@ -27,6 +27,9 @@ import { GradingCriterion } from "./gradingScale/gradingCriterion.entity";
 import { GradingResult } from "./gradingScale/gradingResult.entity";
 import { GradingScaleService } from "./gradingScale/gradingScale.service";
 import { GradingScaleController, ProjectGradingScaleController } from "./gradingScale/gradingScale.controller";
+import { Oral } from "./orals/oral.entity";
+import { OralController } from "./orals/oral.controller";
+import { OralsService } from "./orals/orals.service";
 
 @Module({
   imports: [
@@ -38,8 +41,18 @@ import { GradingScaleController, ProjectGradingScaleController } from "./grading
       type: "postgres",
       url:
         process.env.DATABASE_URL ||
-        "postgres://postgres:postgres@localhost:5433/pamp_projects",
-      entities: [StudentBatch, Project, ProjectGroup, Step, ReportDefinition, GradingScale, GradingCriterion, GradingResult],
+        "postgres://postgres:postgres@localhost:5432/pamp_projects",
+      entities: [
+        StudentBatch,
+        Project,
+        ProjectGroup,
+        Step,
+        ReportDefinition,
+        Oral,
+        GradingScale, 
+        GradingCriterion,
+        GradingResult,
+      ],
       synchronize: true,
     }),
     TypeOrmModule.forFeature([
@@ -48,9 +61,11 @@ import { GradingScaleController, ProjectGradingScaleController } from "./grading
       ProjectGroup,
       Step,
       ReportDefinition,
+      notation_grid
       GradingScale,
       GradingCriterion,
       GradingResult,
+      Oral,
     ]),
   ],
   controllers: [
@@ -61,8 +76,10 @@ import { GradingScaleController, ProjectGradingScaleController } from "./grading
     ProjectGroupController,
     ReportDefinitionController,
     LiveblocksController,
+    notation_grid
     GradingScaleController,
     ProjectGradingScaleController,
+    OralController,
   ],
   providers: [
     AppService,
@@ -73,7 +90,9 @@ import { GradingScaleController, ProjectGradingScaleController } from "./grading
     StepService,
     ReportDefinitionService,
     LiveblocksService,
+    notation_grid
     GradingScaleService,
+    OralsService,
   ],
 })
 export class AppModule {}
