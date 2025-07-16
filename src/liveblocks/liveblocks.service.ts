@@ -28,14 +28,16 @@ export class LiveblocksService {
     const liveblocksSecret = this.configService.get<string>(
       "LIVEBLOCKS_SECRET_KEY",
     );
-    
+
     // Only initialize Liveblocks if we have a valid secret key
-    if (liveblocksSecret && liveblocksSecret.startsWith('sk_')) {
+    if (liveblocksSecret && liveblocksSecret.startsWith("sk_")) {
       this.liveblocks = new Liveblocks({
         secret: liveblocksSecret,
       });
     } else {
-      console.warn('Liveblocks service disabled: Invalid or missing LIVEBLOCKS_SECRET_KEY (must start with "sk_")');
+      console.warn(
+        'Liveblocks service disabled: Invalid or missing LIVEBLOCKS_SECRET_KEY (must start with "sk_")',
+      );
       this.liveblocks = null;
     }
   }
@@ -145,7 +147,9 @@ export class LiveblocksService {
 
     // Check if Liveblocks is initialized
     if (!this.liveblocks) {
-      throw new Error('Liveblocks service is not available. Please configure a valid LIVEBLOCKS_SECRET_KEY.');
+      throw new Error(
+        "Liveblocks service is not available. Please configure a valid LIVEBLOCKS_SECRET_KEY.",
+      );
     }
 
     try {

@@ -32,39 +32,44 @@ export class GradingScaleService {
     createdBy: string,
   ): Promise<GradingScale> {
     try {
-      this.logger.debug(`Input DTO: ${JSON.stringify(createGradingScaleDto, null, 2)}`);
+      this.logger.debug(
+        `Input DTO: ${JSON.stringify(createGradingScaleDto, null, 2)}`,
+      );
       this.logger.debug(`createdBy: ${createdBy}`);
-      
+
       const { criteria, ...gradingScaleData } = createGradingScaleDto;
-      this.logger.debug(`gradingScaleData: ${JSON.stringify(gradingScaleData, null, 2)}`);
+      this.logger.debug(
+        `gradingScaleData: ${JSON.stringify(gradingScaleData, null, 2)}`,
+      );
       this.logger.debug(`criteria count: ${criteria?.length || 0}`);
 
       const gradingScale = this.gradingScaleRepository.create({
         ...gradingScaleData,
         createdBy,
       });
-      this.logger.debug(`Created entity: ${JSON.stringify(gradingScale, null, 2)}`);
-
-      this.logger.debug('Saving grading scale...');
-      const savedGradingScale = await this.gradingScaleRepository.save(
-        gradingScale,
+      this.logger.debug(
+        `Created entity: ${JSON.stringify(gradingScale, null, 2)}`,
       );
+
+      this.logger.debug("Saving grading scale...");
+      const savedGradingScale =
+        await this.gradingScaleRepository.save(gradingScale);
       this.logger.debug(`Saved grading scale ID: ${savedGradingScale.id}`);
 
       if (criteria && criteria.length > 0) {
-        this.logger.debug('Creating criteria entities...');
+        this.logger.debug("Creating criteria entities...");
         const criteriaEntities = criteria.map((criterion) =>
           this.gradingCriterionRepository.create({
             ...criterion,
             gradingScale: savedGradingScale,
           }),
         );
-        this.logger.debug('Saving criteria...');
+        this.logger.debug("Saving criteria...");
         await this.gradingCriterionRepository.save(criteriaEntities);
-        this.logger.debug('Criteria saved successfully');
+        this.logger.debug("Criteria saved successfully");
       }
 
-      this.logger.debug('Fetching complete entity...');
+      this.logger.debug("Fetching complete entity...");
       return this.findOne(savedGradingScale.id);
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`, error.stack);
@@ -77,16 +82,16 @@ export class GradingScaleService {
     type?: string,
     targetId?: string,
   ): Promise<GradingScale[]> {
-    const whereConditions:  Record<string, unknown> = { projectId };
-    
+    const whereConditions: Record<string, unknown> = { projectId };
+
     if (type) {
       whereConditions.type = type;
     }
-    
+
     if (targetId) {
       whereConditions.targetId = targetId;
     }
-    
+
     return this.gradingScaleRepository.find({
       where: whereConditions,
       relations: ["criteria", "criteria.results"],
@@ -96,20 +101,24 @@ export class GradingScaleService {
   async findOne(id: string): Promise<GradingScale> {
     try {
       this.logger.debug(`Looking for grading scale with ID: ${id}`);
-      
+
       const gradingScale = await this.gradingScaleRepository.findOne({
         where: { id },
         relations: ["criteria", "criteria.results"],
       });
-      
-      this.logger.debug(`Query result: ${gradingScale ? 'Found' : 'Not found'}`);
+
+      this.logger.debug(
+        `Query result: ${gradingScale ? "Found" : "Not found"}`,
+      );
 
       if (!gradingScale) {
         this.logger.error(`GradingScale not found with ID: ${id}`);
         throw new NotFoundException(`GradingScale with ID ${id} not found`);
       }
-      
-      this.logger.debug(`Returning grading scale with ${gradingScale.criteria?.length || 0} criteria`);
+
+      this.logger.debug(
+        `Returning grading scale with ${gradingScale.criteria?.length || 0} criteria`,
+      );
       return gradingScale;
     } catch (error) {
       this.logger.error(`Error occurred: ${error.message}`);
@@ -124,10 +133,10 @@ export class GradingScaleService {
     const gradingScale = await this.findOne(id);
 
     if (gradingScale.isValidated) {
-      this.logger.error(`Tentative de modification d'une grille validée (id: ${id})`);
-      throw new ForbiddenException(
-        "Cannot update a validated grading scale",
+      this.logger.error(
+        `Tentative de modification d'une grille validée (id: ${id})`,
       );
+      throw new ForbiddenException("Cannot update a validated grading scale");
     }
 
     await this.gradingScaleRepository.update(id, updateGradingScaleDto);
@@ -138,9 +147,7 @@ export class GradingScaleService {
     const gradingScale = await this.findOne(id);
 
     if (gradingScale.isValidated) {
-      throw new ForbiddenException(
-        "Cannot delete a validated grading scale",
-      );
+      throw new ForbiddenException("Cannot delete a validated grading scale");
     }
 
     await this.gradingScaleRepository.remove(gradingScale);
@@ -155,17 +162,24 @@ export class GradingScaleService {
 
     // Vérification : la grille doit avoir au moins un critère
     if (!gradingScale.criteria || gradingScale.criteria.length === 0) {
-      throw new BadRequestException("La grille doit contenir au moins un critère pour être validée.");
+      throw new BadRequestException(
+        "La grille doit contenir au moins un critère pour être validée.",
+      );
     }
 
     // Vérification : chaque critère doit avoir au moins un résultat
     for (const criterion of gradingScale.criteria) {
       if (!criterion.results || criterion.results.length === 0) {
-        throw new BadRequestException(`Le critère '${criterion.label}' n'a pas de note associée. Tous les critères doivent être notés pour valider la grille.`);
+        throw new BadRequestException(
+          `Le critère '${criterion.label}' n'a pas de note associée. Tous les critères doivent être notés pour valider la grille.`,
+        );
       }
     }
 
-    await this.gradingScaleRepository.update(id, { isValidated: true, validatedAt: new Date() });
+    await this.gradingScaleRepository.update(id, {
+      isValidated: true,
+      validatedAt: new Date(),
+    });
     return this.findOne(id);
   }
 
@@ -186,7 +200,9 @@ export class GradingScaleService {
       gradingScale,
     });
 
-    return await this.gradingCriterionRepository.save(criterion) as unknown as GradingCriterion;
+    return (await this.gradingCriterionRepository.save(
+      criterion,
+    )) as unknown as GradingCriterion;
   }
 
   async updateCriterion(
@@ -212,11 +228,13 @@ export class GradingScaleService {
     const updatedCriterion = await this.gradingCriterionRepository.findOne({
       where: { id: criterionId },
     });
-    
+
     if (!updatedCriterion) {
-      throw new NotFoundException(`Updated criterion with ID ${criterionId} not found`);
+      throw new NotFoundException(
+        `Updated criterion with ID ${criterionId} not found`,
+      );
     }
-    
+
     return updatedCriterion;
   }
 
@@ -254,14 +272,18 @@ export class GradingScaleService {
 
     const results = [];
     // Ensure createdBy is a valid UUID or null
-    const createdByUuid = /^[0-9a-fA-F-]{36}$/.test(createdBy) ? createdBy : null;
+    const createdByUuid = /^[0-9a-fA-F-]{36}$/.test(createdBy)
+      ? createdBy
+      : null;
     for (const resultItem of createGradingResultDto.results) {
       const criterion = await this.gradingCriterionRepository.findOne({
         where: { id: resultItem.gradingCriterionId },
       });
-      
+
       if (!criterion) {
-        throw new NotFoundException(`Criterion with ID ${resultItem.gradingCriterionId} not found`);
+        throw new NotFoundException(
+          `Criterion with ID ${resultItem.gradingCriterionId} not found`,
+        );
       }
 
       const result = this.gradingResultRepository.create({
@@ -272,26 +294,31 @@ export class GradingScaleService {
         gradingCriterion: criterion,
         createdBy: createdByUuid,
       });
-      
+
       results.push(result);
     }
 
     try {
       return await this.gradingResultRepository.save(results);
     } catch (error) {
-      this.logger.error(`[ERROR] createResults - Exception: ${error.message}`, error.stack);
-      throw new InternalServerErrorException(`Erreur lors de la sauvegarde des résultats: ${error.message}`);
+      this.logger.error(
+        `[ERROR] createResults - Exception: ${error.message}`,
+        error.stack,
+      );
+      throw new InternalServerErrorException(
+        `Erreur lors de la sauvegarde des résultats: ${error.message}`,
+      );
     }
   }
 
   async getResults(gradingScaleId: string): Promise<GradingResult[]> {
     const gradingScale = await this.findOne(gradingScaleId);
-    const criteriaIds = gradingScale.criteria.map(criterion => criterion.id);
-    
+    const criteriaIds = gradingScale.criteria.map((criterion) => criterion.id);
+
     if (criteriaIds.length === 0) {
       return [];
     }
-    
+
     return this.gradingResultRepository.find({
       where: { gradingCriterion: { id: In(criteriaIds) } },
       relations: ["gradingCriterion"],
@@ -302,29 +329,42 @@ export class GradingScaleService {
     resultId: string,
     resultData: Partial<GradingResult>,
   ): Promise<GradingResult> {
-    this.logger.debug(`[DEBUG] updateResult - Called with resultId: ${resultId}, resultData: ${JSON.stringify(resultData)}`);
+    this.logger.debug(
+      `[DEBUG] updateResult - Called with resultId: ${resultId}, resultData: ${JSON.stringify(resultData)}`,
+    );
     try {
       const result = await this.gradingResultRepository.findOne({
         where: { id: resultId },
         relations: ["gradingCriterion", "gradingCriterion.gradingScale"],
       });
-      this.logger.debug(`[DEBUG] updateResult - Result fetched: ${JSON.stringify(result)}`);
+      this.logger.debug(
+        `[DEBUG] updateResult - Result fetched: ${JSON.stringify(result)}`,
+      );
       if (!result) {
-        this.logger.error(`[ERROR] updateResult - Result with ID ${resultId} not found`);
+        this.logger.error(
+          `[ERROR] updateResult - Result with ID ${resultId} not found`,
+        );
         throw new NotFoundException(`Result with ID ${resultId} not found`);
       }
       if (result.gradingCriterion.gradingScale.isValidated) {
-        this.logger.error(`[ERROR] updateResult - Grading scale is validated for resultId: ${resultId}`);
+        this.logger.error(
+          `[ERROR] updateResult - Grading scale is validated for resultId: ${resultId}`,
+        );
         throw new ForbiddenException(
           "Cannot update results of a validated grading scale",
         );
       }
       Object.assign(result, resultData);
       await this.gradingResultRepository.save(result);
-      this.logger.debug(`[DEBUG] updateResult - Result updated: ${JSON.stringify(result)}`);
+      this.logger.debug(
+        `[DEBUG] updateResult - Result updated: ${JSON.stringify(result)}`,
+      );
       return result;
     } catch (error) {
-      this.logger.error(`[ERROR] updateResult - Exception: ${error.message}`, error.stack);
+      this.logger.error(
+        `[ERROR] updateResult - Exception: ${error.message}`,
+        error.stack,
+      );
       throw error;
     }
   }

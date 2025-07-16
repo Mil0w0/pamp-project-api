@@ -67,7 +67,7 @@ export class GradingScale {
 
   @Column({
     type: "timestamp",
-    nullable: true
+    nullable: true,
   })
   validatedAt: Date;
 

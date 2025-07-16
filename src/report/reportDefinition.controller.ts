@@ -64,7 +64,8 @@ export class ReportDefinitionController {
   })
   @ApiBody({
     type: PatchReportDefinitionDto,
-    description: "Structure JSON pour la mise à jour d'une définition de rapport",
+    description:
+      "Structure JSON pour la mise à jour d'une définition de rapport",
   })
   @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
   async patch(
@@ -129,7 +130,8 @@ export class ReportDefinitionController {
   })
   @ApiBody({
     type: PatchReportDefinitionDto,
-    description: "Structure JSON pour la mise à jour d'une définition de rapport",
+    description:
+      "Structure JSON pour la mise à jour d'une définition de rapport",
   })
   @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
   async patchByProject(

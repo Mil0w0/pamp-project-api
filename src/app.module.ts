@@ -26,7 +26,10 @@ import { GradingScale } from "./gradingScale/gradingScale.entity";
 import { GradingCriterion } from "./gradingScale/gradingCriterion.entity";
 import { GradingResult } from "./gradingScale/gradingResult.entity";
 import { GradingScaleService } from "./gradingScale/gradingScale.service";
-import { GradingScaleController, ProjectGradingScaleController } from "./gradingScale/gradingScale.controller";
+import {
+  GradingScaleController,
+  ProjectGradingScaleController,
+} from "./gradingScale/gradingScale.controller";
 import { Oral } from "./orals/oral.entity";
 import { OralController } from "./orals/oral.controller";
 import { OralsService } from "./orals/orals.service";
@@ -49,7 +52,7 @@ import { OralsService } from "./orals/orals.service";
         Step,
         ReportDefinition,
         Oral,
-        GradingScale, 
+        GradingScale,
         GradingCriterion,
         GradingResult,
       ],
@@ -61,7 +64,6 @@ import { OralsService } from "./orals/orals.service";
       ProjectGroup,
       Step,
       ReportDefinition,
-      notation_grid
       GradingScale,
       GradingCriterion,
       GradingResult,
@@ -76,7 +78,6 @@ import { OralsService } from "./orals/orals.service";
     ProjectGroupController,
     ReportDefinitionController,
     LiveblocksController,
-    notation_grid
     GradingScaleController,
     ProjectGradingScaleController,
     OralController,
@@ -90,7 +91,6 @@ import { OralsService } from "./orals/orals.service";
     StepService,
     ReportDefinitionService,
     LiveblocksService,
-    notation_grid
     GradingScaleService,
     OralsService,
   ],

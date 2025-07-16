@@ -23,7 +23,7 @@ import { ReportDefinitionService } from "../report/reportDefinition.service";
 import { UpsertReportDefinitionDto } from "../report/dto/upsert-report-definition.dto";
 import { StudentService } from "../studentBatch/students.service";
 
-@ApiTags('Projects')
+@ApiTags("Projects")
 @Controller("projects")
 export class ProjectController {
   private readonly logger = new Logger(ProjectController.name);
@@ -48,17 +48,23 @@ export class ProjectController {
     description: "Json structure for create project object",
   })
   async create(@Body() project: CreateProjectDto, @Req() req: Request) {
-    this.logger.log(`POST /projects - Creating project: ${project.name || 'Untitled'}`);
+    this.logger.log(
+      `POST /projects - Creating project: ${project.name || "Untitled"}`,
+    );
     const user = await this.studentService.getCurrentUser(
       req.headers["authorization"],
     );
     this.logger.log(`User authenticated: ${user.user_id} (${user.role})`);
     if (user.role === "STUDENT") {
-      this.logger.warn(`Unauthorized project creation attempt by student: ${user.user_id}`);
+      this.logger.warn(
+        `Unauthorized project creation attempt by student: ${user.user_id}`,
+      );
       throw new UnauthorizedException("Only teacher can create a project.");
     }
     const result = await this.projectsService.create(project, user.user_id);
-    this.logger.log(`Project created successfully with ID: ${result?.id || 'Unknown'}`);
+    this.logger.log(
+      `Project created successfully with ID: ${result?.id || "Unknown"}`,
+    );
     return result;
   }
 
@@ -83,7 +89,7 @@ export class ProjectController {
   async findOne(@Param("id") id: string) {
     this.logger.log(`GET /projects/${id} - Fetching project`);
     const result = await this.projectsService.findOne(id);
-    this.logger.log(`Project found: ${result?.name || 'Not found'}`);
+    this.logger.log(`Project found: ${result?.name || "Not found"}`);
     return result;
   }
 
@@ -93,7 +99,9 @@ export class ProjectController {
     description: "The projects have been successfully fetched.",
   })
   async findAll(@Query() params: ListProjectsDto, @Req() req: Request) {
-    this.logger.log(`GET /projects - Fetching projects with params: ${JSON.stringify(params)}`);
+    this.logger.log(
+      `GET /projects - Fetching projects with params: ${JSON.stringify(params)}`,
+    );
     const token = req.headers["authorization"];
     const result = await this.projectsService.findAll(params, token);
     this.logger.log(`Found ${result.length} projects`);
@@ -128,7 +136,9 @@ export class ProjectController {
   async copy(@Param("id") id: string) {
     this.logger.log(`POST /projects/${id} - Copying project`);
     const result = await this.projectsService.copy(id);
-    this.logger.log(`Project ${id} copied successfully with new ID: ${result?.id || 'Unknown'}`);
+    this.logger.log(
+      `Project ${id} copied successfully with new ID: ${result?.id || "Unknown"}`,
+    );
     return result;
   }
 
@@ -151,12 +161,16 @@ export class ProjectController {
     @Body() reportDefinition: UpsertReportDefinitionDto,
     @Param("id") projectId: string,
   ) {
-    this.logger.log(`PUT /projects/${projectId}/report-definition - Upserting report definition`);
+    this.logger.log(
+      `PUT /projects/${projectId}/report-definition - Upserting report definition`,
+    );
     const result = await this.reportDefinitionService.upsertByProjectId(
       projectId,
       reportDefinition,
     );
-    this.logger.log(`Report definition for project ${projectId} upserted successfully`);
+    this.logger.log(
+      `Report definition for project ${projectId} upserted successfully`,
+    );
     return result;
   }
 
@@ -171,9 +185,14 @@ export class ProjectController {
       "Project not found or no report definition exists for this project",
   })
   async getReportDefinition(@Param("id") projectId: string) {
-    this.logger.log(`GET /projects/${projectId}/report-definition - Fetching report definition`);
-    const result = await this.reportDefinitionService.findByProjectId(projectId);
-    this.logger.log(`Report definition for project ${projectId}: ${result ? 'Found' : 'Not found'}`);
+    this.logger.log(
+      `GET /projects/${projectId}/report-definition - Fetching report definition`,
+    );
+    const result =
+      await this.reportDefinitionService.findByProjectId(projectId);
+    this.logger.log(
+      `Report definition for project ${projectId}: ${result ? "Found" : "Not found"}`,
+    );
     return result;
   }
 }

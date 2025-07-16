@@ -1,10 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {
-  IsOptional,
-  IsString,
-  IsNumber,
-  IsBoolean,
-} from "class-validator";
+import { IsOptional, IsString, IsNumber, IsBoolean } from "class-validator";
 
 export class UpdateGradingCriterionDto {
   @ApiProperty({ example: "Qualité du rendu", required: false })
