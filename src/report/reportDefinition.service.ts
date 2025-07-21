@@ -6,7 +6,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { ReportDefinition } from "./reportDefinition.entiy";
+import { ReportDefinition } from "./reportDefinition.entity";
 import { Project } from "../project/project.entity";
 import { DEFAULT_ELEMENT_BY_PAGE } from "../constants";
 import { CreateReportDefinitionDto } from "./dto/create-report-definition.dto";

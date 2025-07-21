@@ -10,7 +10,7 @@ import {
 import { StudentBatch } from "../studentBatch/studentBatch.entity";
 import { ProjectGroup } from "../projectGroup/projectGroup.entity";
 import { Step } from "../steps/step.entity";
-import { ReportDefinition } from "../report/reportDefinition.entiy";
+import { ReportDefinition } from "../report/reportDefinition.entity";
 
 @Entity()
 export class Project {

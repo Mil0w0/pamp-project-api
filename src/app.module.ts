@@ -17,11 +17,19 @@ import { ProjectGroupController } from "./projectGroup/projectGroup.controller";
 import { Step } from "./steps/step.entity";
 import { StepController } from "./steps/step.controller";
 import { StepService } from "./steps/step.service";
-import { ReportDefinition } from "./report/reportDefinition.entiy";
+import { ReportDefinition } from "./report/reportDefinition.entity";
 import { ReportDefinitionService } from "./report/reportDefinition.service";
 import { ReportDefinitionController } from "./report/reportDefinition.controller";
 import { LiveblocksService } from "./liveblocks/liveblocks.service";
 import { LiveblocksController } from "./liveblocks/liveblocks.controller";
+import { GradingScale } from "./gradingScale/gradingScale.entity";
+import { GradingCriterion } from "./gradingScale/gradingCriterion.entity";
+import { GradingResult } from "./gradingScale/gradingResult.entity";
+import { GradingScaleService } from "./gradingScale/gradingScale.service";
+import {
+  GradingScaleController,
+  ProjectGradingScaleController,
+} from "./gradingScale/gradingScale.controller";
 import { Oral } from "./orals/oral.entity";
 import { OralController } from "./orals/oral.controller";
 import { OralsService } from "./orals/orals.service";
@@ -44,6 +52,9 @@ import { OralsService } from "./orals/orals.service";
         Step,
         ReportDefinition,
         Oral,
+        GradingScale,
+        GradingCriterion,
+        GradingResult,
       ],
       synchronize: true,
     }),
@@ -53,6 +64,9 @@ import { OralsService } from "./orals/orals.service";
       ProjectGroup,
       Step,
       ReportDefinition,
+      GradingScale,
+      GradingCriterion,
+      GradingResult,
       Oral,
     ]),
   ],
@@ -64,6 +78,8 @@ import { OralsService } from "./orals/orals.service";
     ProjectGroupController,
     ReportDefinitionController,
     LiveblocksController,
+    GradingScaleController,
+    ProjectGradingScaleController,
     OralController,
   ],
   providers: [
@@ -75,6 +91,7 @@ import { OralsService } from "./orals/orals.service";
     StepService,
     ReportDefinitionService,
     LiveblocksService,
+    GradingScaleService,
     OralsService,
   ],
 })
