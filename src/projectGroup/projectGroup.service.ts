@@ -14,6 +14,7 @@ import { ListProjectGroupsDto } from "./dto/list-projects-dto";
 import { Project } from "../project/project.entity";
 import { StudentService } from "../studentBatch/students.service";
 import { PatchGroupProjectDto } from "./dto/update-project.dto";
+import { NotificationService } from "../notification/notification.service";
 
 @Injectable()
 export class ProjectGroupService {
@@ -23,6 +24,7 @@ export class ProjectGroupService {
     @InjectRepository(ProjectGroup)
     private projectGroupRepository: Repository<ProjectGroup>,
     private readonly studentService: StudentService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(projectGroups: CreateBatchGroupsDto) {
@@ -109,8 +111,12 @@ export class ProjectGroupService {
   ): Promise<ProjectGroup> {
     const group = await this.projectGroupRepository.findOne({
       where: { id },
+      relations: ["project"],
     });
     if (!group) throw new BadRequestException("Group not found");
+
+    // Get current students before update for notification comparison
+    const previousStudentIds = group.studentsIds ? group.studentsIds.split(",").map(id => id.trim()) : [];
 
     //Check if the ids are existing students
     const validStudentIds: string[] = [];
@@ -126,12 +132,25 @@ export class ProjectGroupService {
       //Replace student ids with the valid ones only
       fielsToUpdate.studentsIds = validStudentIds.join(",");
     }
+
     try {
       await this.projectGroupRepository.update(id, fielsToUpdate);
-      return await this.projectGroupRepository.findOne({
+      const updatedGroup = await this.projectGroupRepository.findOne({
         where: { id },
         relations: ["project", "oral"],
       });
+
+      // Check if students were added and send notifications if conditions are met
+      if (fielsToUpdate.studentsIds && updatedGroup) {
+        await this.sendGroupAssignmentNotifications(
+          updatedGroup,
+          previousStudentIds,
+          validStudentIds,
+          token
+        );
+      }
+
+      return updatedGroup;
     } catch (error) {
       throw new InternalServerErrorException(error);
     }
@@ -239,6 +258,64 @@ export class ProjectGroupService {
       throw new InternalServerErrorException(
         `Failed to delete groups for project ${id}: ${error.message}`,
       );
+    }
+  }
+
+  /**
+   * Sends notifications to newly assigned students when they are added to a group
+   * Only sends if: groupCreator is not STUDENT and project is published
+   */
+  private async sendGroupAssignmentNotifications(
+    group: ProjectGroup,
+    previousStudentIds: string[],
+    newStudentIds: string[],
+    token: string,
+  ): Promise<void> {
+    try {
+      // Check project conditions: groupCreator is not STUDENT and project is published
+      if (!group.project || 
+          group.project.groupsCreator === 'STUDENT' || 
+          !group.project.isPublished) {
+        console.log(`Skipping notifications for group ${group.id}: conditions not met`);
+        return;
+      }
+
+      // Find newly added students (students in new list but not in previous list)
+      const newlyAddedStudents = newStudentIds.filter(
+        studentId => !previousStudentIds.includes(studentId.trim())
+      );
+
+      if (newlyAddedStudents.length === 0) {
+        console.log(`No new students added to group ${group.id}, skipping notifications`);
+        return;
+      }
+
+      console.log(`Sending notifications to ${newlyAddedStudents.length} newly assigned students in group ${group.id}`);
+
+      // Get student details and send notifications
+      const students = await this.studentService.getStudentsByIds(newlyAddedStudents, token);
+      
+      const notificationPromises = students.map(async (student) => {
+        try {
+          await this.notificationService.sendProjectGroupAssignedNotification(
+            student.email,
+            student.first_name,
+            group.project.name,
+            group.project.id,
+            group.id,
+            group.name,
+          );
+          console.log(`Notification sent to ${student.email} for group assignment`);
+        } catch (error) {
+          console.error(`Failed to send group assignment notification to ${student.email}:`, error);
+          // Continue with other notifications even if one fails
+        }
+      });
+
+      await Promise.allSettled(notificationPromises);
+    } catch (error) {
+      console.error(`Failed to send group assignment notifications for group ${group.id}:`, error);
+      // Don't throw error to avoid breaking the update operation
     }
   }
 }

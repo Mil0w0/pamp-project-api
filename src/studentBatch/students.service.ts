@@ -149,4 +149,50 @@ export class StudentService {
       throw new InternalServerErrorException(`${error}`);
     }
   }
+
+  /**
+   * Get student details by ID
+   * @param studentId
+   * @param token
+   */
+  async getStudentById(studentId: string, token: string): Promise<GetStudent> {
+    try {
+      const { data } = await firstValueFrom(
+        this.httpService
+          .get<GetStudent>(`${this.USER_SERVICE_URL}/users/${studentId}`, {
+            headers: {
+              Authorization: token,
+            },
+          })
+          .pipe(
+            catchError((error: AxiosError) => {
+              throw new InternalServerErrorException(
+                `Error while getting student details: ${error.message}`,
+              );
+            }),
+          ),
+      );
+      return data;
+    } catch (error) {
+      throw new InternalServerErrorException(`${error}`);
+    }
+  }
+
+  /**
+   * Get multiple students details by their IDs
+   * @param studentIds
+   * @param token
+   */
+  async getStudentsByIds(studentIds: string[], token: string): Promise<GetStudent[]> {
+    try {
+      const students = await Promise.all(
+        studentIds.map((id) => this.getStudentById(id, token))
+      );
+      return students;
+    } catch (error) {
+      throw new InternalServerErrorException(
+        `Error while getting students details: ${error}`,
+      );
+    }
+  }
 }
