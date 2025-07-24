@@ -24,6 +24,13 @@ export class PatchProjectDto {
   description?: string;
 
   @ApiProperty({
+    example: "s3://bucket/projects/projectID",
+    required: false,
+  })
+  @IsOptional()
+  syllabusUrl?: string;
+
+  @ApiProperty({
     example: "aaae-enri-fzeuifzr",
     required: false,
   })
