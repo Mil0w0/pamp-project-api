@@ -19,6 +19,8 @@ import { ProjectGroupService } from "../projectGroup/projectGroup.service";
 import { CreateProjectGroupDto } from "../projectGroup/dto/create-project-dto";
 import { StudentService } from "../studentBatch/students.service";
 import { Step } from "../steps/step.entity";
+import { NotificationService } from "../notification/notification.service";
+import { GetStudent } from "../studentBatch/dto/get-students-dao";
 
 @Injectable()
 export class ProjectService {
@@ -31,6 +33,7 @@ export class ProjectService {
     private readonly studentService: StudentService,
     @InjectRepository(Step)
     private readonly stepRepo: Repository<Step>,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(project: CreateProjectDto, teacherId: string): Promise<Project> {
@@ -120,9 +123,10 @@ export class ProjectService {
    *
    * @param fielsToUpdate : PatchStudentBatchDto
    * @param id : string
+   * @param token : string - Authorization token to get student details
    * Update the promotion
    */
-  async update(id: string, fielsToUpdate: PatchProjectDto): Promise<Project> {
+  async update(id: string, fielsToUpdate: PatchProjectDto, token?: string): Promise<Project> {
     const formattedDto: UpdatedProjectPatchDto = { ...fielsToUpdate };
 
     if (fielsToUpdate.studentBatchId) {
@@ -182,6 +186,11 @@ export class ProjectService {
             projectId: id,
           });
         }
+      }
+
+      // Check if project was just published and send notifications
+      if (fielsToUpdate.isPublished === true && token) {
+        await this.sendProjectPublicationNotifications(id, token);
       }
 
       // Finally return the updated object
@@ -284,5 +293,87 @@ export class ProjectService {
       groups,
       projectId,
     });
+  }
+
+  /**
+   * Sends notifications to all students in the batch when a project is published
+   */
+  private async sendProjectPublicationNotifications(projectId: string, token: string): Promise<void> {
+    try {
+      const project = await this.findOne(projectId);
+      if (!project.studentBatch) {
+        console.log(`Project ${projectId} has no associated student batch, skipping notifications`);
+        return;
+      }
+
+      const studentIds = project.studentBatch.students.split(',').filter(id => id.trim());
+      if (studentIds.length === 0) {
+        console.log(`No students in batch for project ${projectId}, skipping notifications`);
+        return;
+      }
+
+      // Get student details
+      const students = await this.studentService.getStudentsByIds(studentIds, token);
+
+      // Send notifications based on group configuration and assignment
+      const notificationPromises = students.map(async (student) => {
+        try {
+          await this.sendStudentNotification(student, project, token);
+        } catch (error) {
+          console.error(`Failed to send notification to student ${student.email}:`, error);
+          // Continue with other notifications even if one fails
+        }
+      });
+
+      await Promise.allSettled(notificationPromises);
+      console.log(`Sent project publication notifications for project ${project.name} to ${students.length} students`);
+    } catch (error) {
+      console.error(`Failed to send project publication notifications for project ${projectId}:`, error);
+      // Don't throw error to avoid breaking the update operation
+    }
+  }
+
+  /**
+   * Sends appropriate notification to a single student based on group configuration
+   */
+  private async sendStudentNotification(student: GetStudent, project: Project, token: string): Promise<void> {
+    const studentId = student.user_id;
+    const studentEmail = student.email;
+    const studentFirstName = student.first_name;
+    const projectName = project.name;
+    const projectId = project.id;
+
+    // Check if student is assigned to a group
+    const studentGroup = project.groups.find(group => 
+      group.studentsIds && group.studentsIds.split(',').includes(studentId)
+    );
+
+    if (project.groupsCreator === 'STUDENT') {
+      // Students can create/join groups themselves
+      await this.notificationService.sendProjectGroupJoinNotification(
+        studentEmail,
+        studentFirstName,
+        projectName,
+        projectId,
+      );
+    } else if (studentGroup) {
+      // Student is already assigned to a group
+      await this.notificationService.sendProjectGroupAssignedNotification(
+        studentEmail,
+        studentFirstName,
+        projectName,
+        projectId,
+        studentGroup.id,
+        studentGroup.name,
+      );
+    } else {
+      // Student is not assigned to a group, professor will assign
+      await this.notificationService.sendProjectGroupPendingNotification(
+        studentEmail,
+        studentFirstName,
+        projectName,
+        projectId,
+      );
+    }
   }
 }

@@ -25,10 +25,13 @@ import { LiveblocksController } from "./liveblocks/liveblocks.controller";
 import { Oral } from "./orals/oral.entity";
 import { OralController } from "./orals/oral.controller";
 import { OralsService } from "./orals/orals.service";
+import { NotificationModule } from "./notification/notification.module";
+import { NotificationService } from "./notification/notification.service";
 
 @Module({
   imports: [
     HttpModule,
+    NotificationModule,
     ConfigModule.forRoot({
       isGlobal: true, // Enable env var
     }),
@@ -76,6 +79,7 @@ import { OralsService } from "./orals/orals.service";
     ReportDefinitionService,
     LiveblocksService,
     OralsService,
+    NotificationService,
   ],
 })
 export class AppModule {}

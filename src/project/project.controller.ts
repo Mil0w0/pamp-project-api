@@ -60,8 +60,9 @@ export class ProjectController {
     description: "Json structure for update project object",
   })
   @UsePipes(new ValidationPipe({ forbidNonWhitelisted: true, whitelist: true }))
-  async patch(@Body() project: PatchProjectDto, @Param("id") id: string) {
-    return this.projectsService.update(id, project);
+  async patch(@Body() project: PatchProjectDto, @Param("id") id: string, @Req() req: Request) {
+    const token = req.headers["authorization"];
+    return this.projectsService.update(id, project, token);
   }
 
   @Get(":id")
