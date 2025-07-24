@@ -116,7 +116,9 @@ export class ProjectGroupService {
     if (!group) throw new BadRequestException("Group not found");
 
     // Get current students before update for notification comparison
-    const previousStudentIds = group.studentsIds ? group.studentsIds.split(",").map(id => id.trim()) : [];
+    const previousStudentIds = group.studentsIds
+      ? group.studentsIds.split(",").map((id) => id.trim())
+      : [];
 
     //Check if the ids are existing students
     const validStudentIds: string[] = [];
@@ -146,7 +148,7 @@ export class ProjectGroupService {
           updatedGroup,
           previousStudentIds,
           validStudentIds,
-          token
+          token,
         );
       }
 
@@ -273,28 +275,39 @@ export class ProjectGroupService {
   ): Promise<void> {
     try {
       // Check project conditions: groupCreator is not STUDENT and project is published
-      if (!group.project || 
-          group.project.groupsCreator === 'STUDENT' || 
-          !group.project.isPublished) {
-        console.log(`Skipping notifications for group ${group.id}: conditions not met`);
+      if (
+        !group.project ||
+        group.project.groupsCreator === "STUDENT" ||
+        !group.project.isPublished
+      ) {
+        console.log(
+          `Skipping notifications for group ${group.id}: conditions not met`,
+        );
         return;
       }
 
       // Find newly added students (students in new list but not in previous list)
       const newlyAddedStudents = newStudentIds.filter(
-        studentId => !previousStudentIds.includes(studentId.trim())
+        (studentId) => !previousStudentIds.includes(studentId.trim()),
       );
 
       if (newlyAddedStudents.length === 0) {
-        console.log(`No new students added to group ${group.id}, skipping notifications`);
+        console.log(
+          `No new students added to group ${group.id}, skipping notifications`,
+        );
         return;
       }
 
-      console.log(`Sending notifications to ${newlyAddedStudents.length} newly assigned students in group ${group.id}`);
+      console.log(
+        `Sending notifications to ${newlyAddedStudents.length} newly assigned students in group ${group.id}`,
+      );
 
       // Get student details and send notifications
-      const students = await this.studentService.getStudentsByIds(newlyAddedStudents, token);
-      
+      const students = await this.studentService.getStudentsByIds(
+        newlyAddedStudents,
+        token,
+      );
+
       const notificationPromises = students.map(async (student) => {
         try {
           await this.notificationService.sendProjectGroupAssignedNotification(
@@ -305,16 +318,24 @@ export class ProjectGroupService {
             group.id,
             group.name,
           );
-          console.log(`Notification sent to ${student.email} for group assignment`);
+          console.log(
+            `Notification sent to ${student.email} for group assignment`,
+          );
         } catch (error) {
-          console.error(`Failed to send group assignment notification to ${student.email}:`, error);
+          console.error(
+            `Failed to send group assignment notification to ${student.email}:`,
+            error,
+          );
           // Continue with other notifications even if one fails
         }
       });
 
       await Promise.allSettled(notificationPromises);
     } catch (error) {
-      console.error(`Failed to send group assignment notifications for group ${group.id}:`, error);
+      console.error(
+        `Failed to send group assignment notifications for group ${group.id}:`,
+        error,
+      );
       // Don't throw error to avoid breaking the update operation
     }
   }
