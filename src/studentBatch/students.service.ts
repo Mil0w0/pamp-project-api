@@ -183,10 +183,13 @@ export class StudentService {
    * @param studentIds
    * @param token
    */
-  async getStudentsByIds(studentIds: string[], token: string): Promise<GetStudent[]> {
+  async getStudentsByIds(
+    studentIds: string[],
+    token: string,
+  ): Promise<GetStudent[]> {
     try {
       const students = await Promise.all(
-        studentIds.map((id) => this.getStudentById(id, token))
+        studentIds.map((id) => this.getStudentById(id, token)),
       );
       return students;
     } catch (error) {

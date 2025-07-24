@@ -126,7 +126,11 @@ export class ProjectService {
    * @param token : string - Authorization token to get student details
    * Update the promotion
    */
-  async update(id: string, fielsToUpdate: PatchProjectDto, token?: string): Promise<Project> {
+  async update(
+    id: string,
+    fielsToUpdate: PatchProjectDto,
+    token?: string,
+  ): Promise<Project> {
     const formattedDto: UpdatedProjectPatchDto = { ...fielsToUpdate };
 
     if (fielsToUpdate.studentBatchId) {
@@ -298,37 +302,57 @@ export class ProjectService {
   /**
    * Sends notifications to all students in the batch when a project is published
    */
-  private async sendProjectPublicationNotifications(projectId: string, token: string): Promise<void> {
+  private async sendProjectPublicationNotifications(
+    projectId: string,
+    token: string,
+  ): Promise<void> {
     try {
       const project = await this.findOne(projectId);
       if (!project.studentBatch) {
-        console.log(`Project ${projectId} has no associated student batch, skipping notifications`);
+        console.log(
+          `Project ${projectId} has no associated student batch, skipping notifications`,
+        );
         return;
       }
 
-      const studentIds = project.studentBatch.students.split(',').filter(id => id.trim());
+      const studentIds = project.studentBatch.students
+        .split(",")
+        .filter((id) => id.trim());
       if (studentIds.length === 0) {
-        console.log(`No students in batch for project ${projectId}, skipping notifications`);
+        console.log(
+          `No students in batch for project ${projectId}, skipping notifications`,
+        );
         return;
       }
 
       // Get student details
-      const students = await this.studentService.getStudentsByIds(studentIds, token);
+      const students = await this.studentService.getStudentsByIds(
+        studentIds,
+        token,
+      );
 
       // Send notifications based on group configuration and assignment
       const notificationPromises = students.map(async (student) => {
         try {
-          await this.sendStudentNotification(student, project, token);
+          await this.sendStudentNotification(student, project);
         } catch (error) {
-          console.error(`Failed to send notification to student ${student.email}:`, error);
+          console.error(
+            `Failed to send notification to student ${student.email}:`,
+            error,
+          );
           // Continue with other notifications even if one fails
         }
       });
 
       await Promise.allSettled(notificationPromises);
-      console.log(`Sent project publication notifications for project ${project.name} to ${students.length} students`);
+      console.log(
+        `Sent project publication notifications for project ${project.name} to ${students.length} students`,
+      );
     } catch (error) {
-      console.error(`Failed to send project publication notifications for project ${projectId}:`, error);
+      console.error(
+        `Failed to send project publication notifications for project ${projectId}:`,
+        error,
+      );
       // Don't throw error to avoid breaking the update operation
     }
   }
@@ -336,7 +360,10 @@ export class ProjectService {
   /**
    * Sends appropriate notification to a single student based on group configuration
    */
-  private async sendStudentNotification(student: GetStudent, project: Project, token: string): Promise<void> {
+  private async sendStudentNotification(
+    student: GetStudent,
+    project: Project,
+  ): Promise<void> {
     const studentId = student.user_id;
     const studentEmail = student.email;
     const studentFirstName = student.first_name;
@@ -344,11 +371,12 @@ export class ProjectService {
     const projectId = project.id;
 
     // Check if student is assigned to a group
-    const studentGroup = project.groups.find(group => 
-      group.studentsIds && group.studentsIds.split(',').includes(studentId)
+    const studentGroup = project.groups.find(
+      (group) =>
+        group.studentsIds && group.studentsIds.split(",").includes(studentId),
     );
 
-    if (project.groupsCreator === 'STUDENT') {
+    if (project.groupsCreator === "STUDENT") {
       // Students can create/join groups themselves
       await this.notificationService.sendProjectGroupJoinNotification(
         studentEmail,
