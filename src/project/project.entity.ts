@@ -37,6 +37,11 @@ export class Project {
   @Column("text")
   description: string;
 
+  @Column({
+    nullable: true,
+  })
+  syllabusUrl: string;
+
   @Column({ nullable: true })
   maxGroups: number;
 
